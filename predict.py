@@ -69,8 +69,8 @@ def main(args):
         inpainted = poisson_blend(x_mask, output, mask)
         #imgs = torch.cat((x, x_mask, inpainted), dim=0)
         #save_image(imgs, args.output_img, nrow=3)
-        save_image(x, os.path.join(args.output_dir, 'input.png'))
-        save_image(x_mask, os.path.join(args.output_dir, 'x_mask.png'))
+        save_image(x, os.path.join(args.output_img, 'input.png'))
+        save_image(x_mask, os.path.join(args.output_img, 'x_mask.png'))
         save_image(inpainted, os.path.join(args.output_img, 'inpainted.png'))
     print('output img was saved as %s.' % args.output_img)
 
