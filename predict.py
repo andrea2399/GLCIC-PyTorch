@@ -17,6 +17,7 @@ parser.add_argument('input_img')
 parser.add_argument('output_img')
 parser.add_argument('--max_holes', type=int, default=5)
 parser.add_argument('--img_size', type=int, default=160)
+parser.add_argument('--img_size_1', type=int, default=160)
 parser.add_argument('--hole_min_w', type=int, default=24)
 parser.add_argument('--hole_max_w', type=int, default=48)
 parser.add_argument('--hole_min_h', type=int, default=24)
@@ -45,7 +46,7 @@ def main(args):
     # convert img to tensor
     img = Image.open(args.input_img)
     img = transforms.Resize(args.img_size)(img)
-    img = transforms.RandomCrop((args.img_size, args.img_size))(img)
+    img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
     x = transforms.ToTensor()(img)
     x = torch.unsqueeze(x, dim=0)
 
