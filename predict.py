@@ -70,7 +70,7 @@ def main(args):
         #save_image(imgs, args.output_img, nrow=3)
         #save_image(x, os.path.join(args.output_dir, 'input.png'))
         #save_image(x_mask, os.path.join(args.output_dir, 'x_mask.png'))
-        save_image(inpainted, os.path.join(args.output_dir, 'inpainted.png'))
+        save_image(inpainted, os.path.join(args.output_img, 'inpainted.png'))
     print('output img was saved as %s.' % args.output_img)
 
 
