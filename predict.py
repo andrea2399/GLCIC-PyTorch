@@ -45,8 +45,8 @@ def main(args):
     # =============================================
     # convert img to tensor
     img = Image.open(args.input_img)
-    img = transforms.Resize(args.img_size)(img)
-    img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
+    img = transforms.Resize((args.img_size, args.img_size_1))(img)
+    #img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
     x = transforms.ToTensor()(img)
     x = torch.unsqueeze(x, dim=0)
 
