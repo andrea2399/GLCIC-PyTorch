@@ -1,4 +1,4 @@
-
+import numpy as np
 import os
 import imghdr
 import torch.utils.data as data
