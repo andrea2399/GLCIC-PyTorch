@@ -26,7 +26,7 @@ class ImageDataset(data.Dataset):
         # Path for CBCT image
         cbct_img_path = self.imgpaths[index]
         # Path for corresponding CT image
-        ct_img_path = cbct_img_path.replace('.png', '_ct.png')
+        ct_img_path = cbct_img_path.replace('_cbct.png', '_ct.png')
         
         cbct_img = Image.open(cbct_img_path).convert('L')  # Convert to grayscale
         ct_img = Image.open(ct_img_path).convert('L')      # Convert to grayscale
