@@ -41,7 +41,7 @@ class ImageDataset(data.Dataset):
 
         if self.transform is not None:
             stacked_img = self.transform(stacked_img)
-        return stacked_img
+        return stacked_img, cbct_img
         
     def __is_imgfile(self, filepath):
         filepath = os.path.expanduser(filepath)
