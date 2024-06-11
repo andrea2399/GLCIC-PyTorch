@@ -141,8 +141,10 @@ def main(args):
         for stacked_img, cbct_img in train_loader:
             # forward
             #x = x.to(gpu)
-            stacked_img = stacked_img.to(gpu)
-            cbct_img = cbct_img.to(gpu)
+            stacked_img = transforms.Grayscale(num_output_channels=1)(stacked_img).to(gpu)
+            cbct_img = transforms.Grayscale(num_output_channels=1)(cbct_img).to(gpu)
+            #stacked_img = stacked_img.to(gpu)
+            #cbct_img = cbct_img.to(gpu)
             mask = gen_input_mask(
                 #shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
                 shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
