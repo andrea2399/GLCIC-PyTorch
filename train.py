@@ -151,7 +151,7 @@ def main(args):
                     (args.hole_min_h, args.hole_max_h)),
                 hole_area=gen_hole_area(
                     (args.ld_input_size, args.ld_input_size),
-                    (x.shape[3], x.shape[2])),
+                    (cbct_img.shape[3], cbct_img.shape[2])),
                 max_holes=args.max_holes,
             ).to(gpu)
             #x_mask = x - x * mask + mpv * mask
