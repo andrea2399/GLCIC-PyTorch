@@ -141,7 +141,7 @@ def main(args):
         for stacked_img, cbct_img in train_loader:
             # forward
             #x = x.to(gpu)
-            stacked_img = transforms.Grayscale(num_output_channels=1)(stacked_img).to(gpu)
+            stacked_img = stacked_img.to(gpu)
             cbct_img = transforms.Grayscale(num_output_channels=1)(cbct_img).to(gpu)
             #stacked_img = stacked_img.to(gpu)
             #cbct_img = cbct_img.to(gpu)
