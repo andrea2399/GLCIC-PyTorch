@@ -23,25 +23,24 @@ class ImageDataset(data.Dataset):
             img = self.transform(img)
         return img
         '''
+        # Path for CBCT image
         cbct_img_path = self.imgpaths[index]
-        ct_img_path = cbct_img_path.replace('_cbct', '_ct')  # Assume CT image filename is derived from CBCT filename
-
+        # Path for corresponding CT image
+        ct_img_path = cbct_img_path.replace('.png', '_ct.png')
+        
         cbct_img = Image.open(cbct_img_path).convert('L')  # Convert to grayscale
-        ct_img = Image.open(ct_img_path).convert('L')  # Convert to grayscale
+        ct_img = Image.open(ct_img_path).convert('L')      # Convert to grayscale
 
-        # Ensure both images have the same size
-        assert cbct_img.size == ct_img.size, "CBCT and CT images must have the same size."
+        cbct_array = np.array(cbct_img)
+        ct_array = np.array(ct_img)
 
-        # Convert images to numpy arrays
-        cbct_np = np.array(cbct_img)
-        ct_np = np.array(ct_img)
+        stacked_img = np.stack([cbct_array, ct_array], axis=-1)
 
-        # Stack CBCT and CT images along the channel dimension
-        stacked_img = np.stack((cbct_np, ct_np), axis=-1)
+        # Convert the numpy array back to PIL Image
+        stacked_img = Image.fromarray(stacked_img)
 
         if self.transform is not None:
             stacked_img = self.transform(stacked_img)
-
         return stacked_img
         
     def __is_imgfile(self, filepath):
