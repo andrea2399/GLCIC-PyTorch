@@ -137,11 +137,15 @@ def main(args):
     cnt_bdivs = 0
     pbar = tqdm(total=args.steps_1)
     while pbar.n < args.steps_1:
-        for x in train_loader:
+        #for x in train_loader:
+        for stacked_img, cbct_img in train_loader:
             # forward
-            x = x.to(gpu)
+            #x = x.to(gpu)
+            stacked_img = stacked_img.to(gpu)
+            cbct_img = cbct_img.to(gpu)
             mask = gen_input_mask(
-                shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                #shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                 hole_size=(
                     (args.hole_min_w, args.hole_max_w),
                     (args.hole_min_h, args.hole_max_h)),
@@ -150,11 +154,13 @@ def main(args):
                     (x.shape[3], x.shape[2])),
                 max_holes=args.max_holes,
             ).to(gpu)
-            x_mask = x - x * mask + mpv * mask
+            #x_mask = x - x * mask + mpv * mask
+            x_mask = cbct_img - cbct_img * mask + mpv * mask
             input = torch.cat((x_mask, mask), dim=1)
             output = model_cn(input)
-            loss = completion_network_loss(x, output, mask)
-
+            #loss = completion_network_loss(x, output, mask)
+            loss = completion_network_loss(stacked_img, output, mask)
+            
             # backward
             loss.backward()
             cnt_bdivs += 1
@@ -171,11 +177,15 @@ def main(args):
                 if pbar.n % args.snaperiod_1 == 0:
                     model_cn.eval()
                     with torch.no_grad():
-                        x = sample_random_batch(
+                        stacked_img, cbct_img = sample_random_batch(
+                        #x = sample_random_batch(
                             test_dset,
                             batch_size=args.num_test_completions).to(gpu)
+                        stacked_img = stacked_img.to(gpu)
+                        cbct_img = cbct_img.to(gpu)
                         mask = gen_input_mask(
-                            shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                            shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
+                            #shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
                             hole_size=(
                                 (args.hole_min_w, args.hole_max_w),
                                 (args.hole_min_h, args.hole_max_h)),
@@ -183,12 +193,13 @@ def main(args):
                                 (args.ld_input_size, args.ld_input_size),
                                 (x.shape[3], x.shape[2])),
                             max_holes=args.max_holes).to(gpu)
-                        x_mask = x - x * mask + mpv * mask
+                        #x_mask = x - x * mask + mpv * mask
+                        x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
                         imgs = torch.cat((
-                            x.cpu(),
+                            cbct_img.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
                         imgpath = os.path.join(
@@ -199,7 +210,7 @@ def main(args):
                             args.result_dir,
                             'phase_1',
                             'model_cn_step%d' % pbar.n)
-                        save_image(imgs, imgpath, nrow=len(x))
+                        save_image(imgs, imgpath, nrow=len(cbct_img))
                         if args.data_parallel:
                             torch.save(
                                 model_cn.module.state_dict(),
@@ -235,21 +246,24 @@ def main(args):
     cnt_bdivs = 0
     pbar = tqdm(total=args.steps_2)
     while pbar.n < args.steps_2:
-        for x in train_loader:
+        #for x in train_loader:
+        for stacked_img, cbct_img in train_loader
             # fake forward
-            x = x.to(gpu)
+            #x = x.to(gpu)
+            stacked_img = stacked_img.to(gpu)
+            cbct_img = cbct_img.to(gpu)
             hole_area_fake = gen_hole_area(
                 (args.ld_input_size, args.ld_input_size),
-                (x.shape[3], x.shape[2]))
+                (cbct_img.shape[3], cbct_img.shape[2]))
             mask = gen_input_mask(
-                shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                 hole_size=(
                     (args.hole_min_w, args.hole_max_w),
                     (args.hole_min_h, args.hole_max_h)),
                 hole_area=hole_area_fake,
                 max_holes=args.max_holes).to(gpu)
-            fake = torch.zeros((len(x), 1)).to(gpu)
-            x_mask = x - x * mask + mpv * mask
+            fake = torch.zeros((len(cbct_img), 1)).to(gpu)
+            x_mask = cbct_img - cbct_img * mask + mpv * mask
             input_cn = torch.cat((x_mask, mask), dim=1)
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
@@ -262,9 +276,9 @@ def main(args):
             # real forward
             hole_area_real = gen_hole_area(
                 (args.ld_input_size, args.ld_input_size),
-                (x.shape[3], x.shape[2]))
-            real = torch.ones((len(x), 1)).to(gpu)
-            input_gd_real = x
+                (cbct_img.shape[3], cbct_img.shape[2]))
+            real = torch.ones((len(cbct_img), 1)).to(gpu)
+            input_gd_real = cbct_img
             input_ld_real = crop(input_gd_real, hole_area_real)
             output_real = model_cd((input_ld_real, input_gd_real))
             loss_real = bceloss(output_real, real)
@@ -288,24 +302,26 @@ def main(args):
                 if pbar.n % args.snaperiod_2 == 0:
                     model_cn.eval()
                     with torch.no_grad():
-                        x = sample_random_batch(
+                        stacked_img,cbct_img  = sample_random_batch(
                             test_dset,
                             batch_size=args.num_test_completions).to(gpu)
+                        stacked_img = stacked_img.to(gpu)
+                        cbct_img = cbct_img.to(gpu)
                         mask = gen_input_mask(
-                            shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                            shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                             hole_size=(
                                 (args.hole_min_w, args.hole_max_w),
                                 (args.hole_min_h, args.hole_max_h)),
                             hole_area=gen_hole_area(
                                 (args.ld_input_size, args.ld_input_size),
-                                (x.shape[3], x.shape[2])),
+                                (cbct_img.shape[3], cbct_img.shape[2])),
                             max_holes=args.max_holes).to(gpu)
-                        x_mask = x - x * mask + mpv * mask
+                        x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
                         imgs = torch.cat((
-                            x.cpu(),
+                            cbct_img.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
                         imgpath = os.path.join(
@@ -316,7 +332,7 @@ def main(args):
                             args.result_dir,
                             'phase_2',
                             'model_cd_step%d' % pbar.n)
-                        save_image(imgs, imgpath, nrow=len(x))
+                        save_image(imgs, imgpath, nrow=len(cbct_img))
                         if args.data_parallel:
                             torch.save(
                                 model_cd.module.state_dict(),
@@ -336,14 +352,15 @@ def main(args):
     cnt_bdivs = 0
     pbar = tqdm(total=args.steps_3)
     while pbar.n < args.steps_3:
-        for x in train_loader:
+        for stacked_img, cbct_img in train_loader:
             # forward model_cd
-            x = x.to(gpu)
+            stacked_img = stacked_img.to(gpu)
+            cbct_img = cbct_img.to(gpu)
             hole_area_fake = gen_hole_area(
                 (args.ld_input_size, args.ld_input_size),
-                (x.shape[3], x.shape[2]))
+                (cbct_img.shape[3], cbct_img.shape[2]))
             mask = gen_input_mask(
-                shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                 hole_size=(
                     (args.hole_min_w, args.hole_max_w),
                     (args.hole_min_h, args.hole_max_h)),
@@ -351,8 +368,8 @@ def main(args):
                 max_holes=args.max_holes).to(gpu)
 
             # fake forward
-            fake = torch.zeros((len(x), 1)).to(gpu)
-            x_mask = x - x * mask + mpv * mask
+            fake = torch.zeros((len(cbct_img), 1)).to(gpu)
+            x_mask = cbct_img - cbct_img * mask + mpv * mask
             input_cn = torch.cat((x_mask, mask), dim=1)
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
@@ -363,9 +380,9 @@ def main(args):
             # real forward
             hole_area_real = gen_hole_area(
                 (args.ld_input_size, args.ld_input_size),
-                (x.shape[3], x.shape[2]))
-            real = torch.ones((len(x), 1)).to(gpu)
-            input_gd_real = x
+                (cbct_img.shape[3], cbct_img.shape[2]))
+            real = torch.ones((len(cbct_img), 1)).to(gpu)
+            input_gd_real = cbct_img
             input_ld_real = crop(input_gd_real, hole_area_real)
             output_real = model_cd((input_ld_real, input_gd_real))
             loss_cd_real = bceloss(output_real, real)
@@ -382,7 +399,7 @@ def main(args):
                 opt_cd.zero_grad()
 
             # forward model_cn
-            loss_cn_1 = completion_network_loss(x, output_cn, mask)
+            loss_cn_1 = completion_network_loss(stacked_img, output_cn, mask)
             input_gd_fake = output_cn
             input_ld_fake = crop(input_gd_fake, hole_area_fake)
             output_fake = model_cd((input_ld_fake, (input_gd_fake)))
@@ -409,24 +426,24 @@ def main(args):
                 if pbar.n % args.snaperiod_3 == 0:
                     model_cn.eval()
                     with torch.no_grad():
-                        x = sample_random_batch(
+                        stacked_img, cbct_img = sample_random_batch(
                             test_dset,
                             batch_size=args.num_test_completions).to(gpu)
                         mask = gen_input_mask(
-                            shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
+                            shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                             hole_size=(
                                 (args.hole_min_w, args.hole_max_w),
                                 (args.hole_min_h, args.hole_max_h)),
                             hole_area=gen_hole_area(
                                 (args.ld_input_size, args.ld_input_size),
-                                (x.shape[3], x.shape[2])),
+                                (cbct_img.shape[3], cbct_img.shape[2])),
                             max_holes=args.max_holes).to(gpu)
-                        x_mask = x - x * mask + mpv * mask
+                        x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
                         imgs = torch.cat((
-                            x.cpu(),
+                            cbct_img.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
                         imgpath = os.path.join(
