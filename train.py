@@ -247,7 +247,7 @@ def main(args):
     pbar = tqdm(total=args.steps_2)
     while pbar.n < args.steps_2:
         #for x in train_loader:
-        for stacked_img, cbct_img in train_loader
+        for stacked_img, cbct_img in train_loader:
             # fake forward
             #x = x.to(gpu)
             stacked_img = stacked_img.to(gpu)
