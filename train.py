@@ -428,7 +428,7 @@ def main(args):
                 if pbar.n % args.snaperiod_3 == 0:
                     model_cn.eval()
                     with torch.no_grad():
-                       cbct_img = sample_random_batch(
+                        cbct_img = sample_random_batch(
                             test_dset,
                             batch_size=args.num_test_completions).to(gpu)
                         mask = gen_input_mask(
