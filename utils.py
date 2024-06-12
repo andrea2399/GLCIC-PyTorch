@@ -172,12 +172,15 @@ def poisson_blend(input, output, mask):
         
         # concatenate the inpainted channels
         out = np.stack(out_channels, axis=-1)
-        
-        out = cv2.seamlessClone(srcimg, out, msk, center, cv2.NORMAL_CLONE)
-        
+        if not np.any(srcimg):  # check if srcimg is empty
+            # skip seamlessClone if srcimg is empty
+            out = out
+        else:
+            out = cv2.seamlessClone(srcimg, out, msk, center, cv2.NORMAL_CLONE)
+        #out = cv2.seamlessClone(srcimg, out, msk, center, cv2.NORMAL_CLONE)
         #out = out[:, :, [2, 1, 0]]  # optional conversion to RGB
         out = transforms.functional.to_tensor(out)
-        out = torch.unsqueeze(out, dim=0)
+        #out = torch.unsqueeze(out, dim=0)
         ret.append(out)
     ret = torch.cat(ret, dim=0)
     return ret
