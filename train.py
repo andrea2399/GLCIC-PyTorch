@@ -192,7 +192,7 @@ def main(args):
                     model_cn.eval()
                     with torch.no_grad():
                         cbct_img = sample_random_batch(
-                        stacked_img, #x = sample_random_batch(
+                        #stacked_img, x = sample_random_batch(
                             test_dset,
                             batch_size=args.num_test_completions).to(gpu)
                         #stacked_img = stacked_img.to(gpu)
