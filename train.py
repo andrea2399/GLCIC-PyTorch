@@ -212,6 +212,10 @@ def main(args):
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
+                        print("cbct_img.shape:", cbct_img.shape)
+                        print("x_mask.shape:", x_mask.shape)
+                        print("completed.shape:", completed.shape)
+
                         imgs = torch.cat((
                             cbct_img.cpu(),
                             x_mask.cpu(),
