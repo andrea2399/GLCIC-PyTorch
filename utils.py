@@ -106,9 +106,12 @@ def gen_input_mask(shape, hole_size, hole_area=None, max_holes=1):
             else:
                 hole_w = hole_size
 
-            # Scegli la coordinata x casuale per il buco
-            offset_x = random.randint(0, mask_w - hole_w)
-            offset_y = 0  # Il buco copre tutta l'altezza
+            if hole_area is not None:
+                offset_x = hole_area[0][0] + random.randint(0, hole_area[1][0] - hole_w)
+                offset_y = hole_area[0][1]    
+            else 
+                offset_x = random.randint(0, mask_w - hole_w)
+                offset_y = 0  # Il buco copre tutta l'altezza
 
             # Riempie il buco con 1.0
             mask[i, :, offset_y: offset_y + hole_h, offset_x: offset_x + hole_w] = 1.0
