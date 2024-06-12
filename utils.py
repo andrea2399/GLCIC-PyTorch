@@ -64,8 +64,6 @@ def gen_input_mask(
             mask[i, :, offset_y: offset_y + hole_h, offset_x: offset_x + hole_w] = 1.0
     return mask
 '''
-import random
-import torch
 
 def gen_input_mask(shape, hole_size, hole_area=None, max_holes=1):
     """
