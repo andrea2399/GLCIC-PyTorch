@@ -124,6 +124,56 @@ def poisson_blend(input, output, mask):
     """
     * inputs:
         - input (torch.Tensor, required)
+                Input tensor of Completion Network, whose shape = (N, 2, H, W).
+        - output (torch.Tensor, required)
+                Output tensor of Completion Network, whose shape = (N, 2, H, W).
+        - mask (torch.Tensor, required)
+                Input mask tensor of Completion Network, whose shape = (N, 1, H, W).
+    * returns:
+                Output image tensor of shape (N, 2, H, W) inpainted with poisson image editing method.
+    """
+    input = input.clone().cpu()
+    output = output.clone().cpu()
+    mask = mask.clone().cpu()
+    mask = torch.cat((mask, mask), dim=1)  # convert to 2-channel format
+    num_samples = input.shape[0]
+    ret = []
+    for i in range(num_samples):
+        dstimg = transforms.functional.to_pil_image(input[i])
+        dstimg = np.array(dstimg)
+        
+        srcimg = transforms.functional.to_pil_image(output[i])
+        srcimg = np.array(srcimg)
+        
+        msk = transforms.functional.to_pil_image(mask[i])
+        msk = np.array(msk)
+        
+        # compute mask's center
+        xs, ys = [], []
+        for j in range(msk.shape[0]):
+            for k in range(msk.shape[1]):
+                if msk[j, k] == 255:
+                    ys.append(j)
+                    xs.append(k)
+        xmin, xmax = min(xs), max(xs)
+        ymin, ymax = min(ys), max(ys)
+        center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
+        
+        dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
+        out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
+        
+        out = transforms.functional.to_tensor(out)
+        out = torch.unsqueeze(out, dim=0)
+        ret.append(out)
+    ret = torch.cat(ret, dim=0)
+    return ret
+        
+
+'''
+def poisson_blend(input, output, mask):
+    """
+    * inputs:
+        - input (torch.Tensor, required)
                 Input tensor of Completion Network, whose shape = (N, 3, H, W).
         - output (torch.Tensor, required)
                 Output tensor of Completion Network, whose shape = (N, 3, H, W).
