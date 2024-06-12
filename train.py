@@ -160,9 +160,9 @@ def main(args):
                     (cbct_img.shape[3], cbct_img.shape[2])),
                 max_holes=args.max_holes,
             ).to(gpu)
-            print("Dimensioni di cbct_img:", cbct_img.shape)
-            print("Dimensioni di mask:", mask.shape)
-            print("Dimensioni di mpv:", mpv.shape)
+            #print("Dimensioni di cbct_img:", cbct_img.shape)
+            #print("Dimensioni di mask:", mask.shape)
+            #print("Dimensioni di mpv:", mpv.shape)
                 # Se mpv è RGB, converti in scala di grigi
             #if mpv.shape[1] == 3:  # Verifica se mpv ha 3 canali
                 #mpv_grayscale = 0.2989 * mpv[:, 0:1, :, :] + 0.5870 * mpv[:, 1:2, :, :] + 0.1140 * mpv[:, 2:3, :, :]
