@@ -136,6 +136,46 @@ def poisson_blend(input, output, mask):
     input = input.clone().cpu()
     output = output.clone().cpu()
     mask = mask.clone().cpu()
+    
+    num_samples = input.shape[0]
+    ret = []
+
+    for i in range(num_samples):
+        dstimg = np.array(transforms.functional.to_pil_image(input[i]))
+        srcimg = np.array(transforms.functional.to_pil_image(output[i]))
+        msk = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))  # Convert mask to 2D binary mask
+        
+        # perform inpainting on each channel separately
+        out_channels = []
+        for channel in range(2):
+            dstimg_channel = dstimg[:, :, channel]
+            msk_channel = msk
+            
+            # compute mask's center
+            ys, xs = np.where(msk_channel == 255)
+            if len(xs) == 0 or len(ys) == 0:
+                center = (0, 0)  # default center if mask is empty
+            else:
+                xmin, xmax = xs.min(), xs.max()
+                ymin, ymax = ys.min(), ys.max()
+                center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
+            
+            # perform inpainting
+            dstimg_channel = cv2.inpaint(dstimg_channel, msk_channel, 1, cv2.INPAINT_TELEA)
+            out_channels.append(dstimg_channel)
+        
+        # concatenate the inpainted channels
+        out = np.stack(out_channels, axis=-1)
+        out = transforms.functional.to_tensor(out)
+        ret.append(out)
+    
+    ret = torch.stack(ret)
+    return ret
+
+'''    
+    input = input.clone().cpu()
+    output = output.clone().cpu()
+    mask = mask.clone().cpu()
     #mask = (mask > 0.5).float()  # convert to binary mask
     num_samples = input.shape[0]
     ret = []
@@ -184,6 +224,7 @@ def poisson_blend(input, output, mask):
         ret.append(out)
     ret = torch.cat(ret, dim=0)
     return ret
+'''
 
 '''
 def poisson_blend(input, output, mask):
