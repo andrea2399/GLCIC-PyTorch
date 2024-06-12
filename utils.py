@@ -132,11 +132,22 @@ def poisson_blend(input, output, mask):
     * returns:
                 Output image tensor of shape (N, 2, H, W) inpainted with poisson image editing method.
     """
+def poisson_blend(input, output, mask):
+    """
+    * inputs:
+        - input (torch.Tensor, required)
+                Input tensor of Completion Network, whose shape = (N, 2, H, W).
+        - output (torch.Tensor, required)
+                Output tensor of Completion Network, whose shape = (N, 2, H, W).
+        - mask (torch.Tensor, required)
+                Input mask tensor of Completion Network, whose shape = (N, 1, H, W).
+    * returns:
+                Output image tensor of shape (N, 2, H, W) inpainted with poisson image editing method.
+    """
     input = input.clone().cpu()
     output = output.clone().cpu()
     mask = mask.clone().cpu()
-    mask = (mask > 0.5).float()  # convert to binary mask
-    mask = torch.cat((mask, mask), dim=1)  # convert to 2-channel format
+    #mask = (mask > 0.5).float()  # convert to binary mask
     num_samples = input.shape[0]
     ret = []
     for i in range(num_samples):
@@ -149,27 +160,38 @@ def poisson_blend(input, output, mask):
         msk = transforms.functional.to_pil_image(mask[i])
         msk = np.array(msk)
         
-        # compute mask's center
-        xs, ys = [], []
-        for j in range(msk.shape[0]):
-            for k in range(msk.shape[1]):
-                if msk[j, k][0] == 255:
-                    ys.append(j)
-                    xs.append(k)
-        xmin, xmax = min(xs), max(xs)
-        ymin, ymax = min(ys), max(ys)
-        center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        dstimg = cv2.inpaint(dstimg, msk[:, :, 0], 1, cv2.INPAINT_TELEA)
-       
-        #dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
-        #out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
-        out = cv2.seamlessClone(srcimg, dstimg,  msk[:, :, 0], center, cv2.NORMAL_CLONE)
+        # perform inpainting on each channel separately
+        out_channels = []
+        for channel in range(2):
+            dstimg_channel = dstimg[:, :, channel]
+            msk_channel = msk[:, :, 0]
+            
+            # compute mask's center
+            xs, ys = [], []
+            for j in range(msk_channel.shape[0]):
+                for k in range(msk_channel.shape[1]):
+                    if msk_channel[j, k] == 255:
+                        ys.append(j)
+                        xs.append(k)
+            xmin, xmax = min(xs), max(xs)
+            ymin, ymax = min(ys), max(ys)
+            center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
+            
+            # perform inpainting
+            dstimg_channel = cv2.inpaint(dstimg_channel, msk_channel, 1, cv2.INPAINT_TELEA)
+            out_channels.append(dstimg_channel)
+        
+        # concatenate the inpainted channels
+        out = np.stack(out_channels, axis=-1)
+        
+        out = cv2.seamlessClone(srcimg, out, msk, center, cv2.NORMAL_CLONE)
+        
+        out = out[:, :, [2, 1, 0]]  # optional conversion to RGB
         out = transforms.functional.to_tensor(out)
         out = torch.unsqueeze(out, dim=0)
         ret.append(out)
     ret = torch.cat(ret, dim=0)
     return ret
-        
 
 '''
 def poisson_blend(input, output, mask):
