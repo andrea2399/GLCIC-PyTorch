@@ -152,7 +152,7 @@ def poisson_blend(input, output, mask):
         xs, ys = [], []
         for j in range(msk.shape[0]):
             for k in range(msk.shape[1]):
-                if msk[j, k] == 255:
+                if msk[j, k][0] == 255:
                     ys.append(j)
                     xs.append(k)
         xmin, xmax = min(xs), max(xs)
