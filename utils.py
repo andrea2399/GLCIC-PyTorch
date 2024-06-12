@@ -120,18 +120,7 @@ def sample_random_batch(dataset, batch_size=32):
     return torch.cat(batch, dim=0)
 
 
-def poisson_blend(input, output, mask):
-    """
-    * inputs:
-        - input (torch.Tensor, required)
-                Input tensor of Completion Network, whose shape = (N, 2, H, W).
-        - output (torch.Tensor, required)
-                Output tensor of Completion Network, whose shape = (N, 2, H, W).
-        - mask (torch.Tensor, required)
-                Input mask tensor of Completion Network, whose shape = (N, 1, H, W).
-    * returns:
-                Output image tensor of shape (N, 2, H, W) inpainted with poisson image editing method.
-    """
+
 def poisson_blend(input, output, mask):
     """
     * inputs:
@@ -164,7 +153,7 @@ def poisson_blend(input, output, mask):
         out_channels = []
         for channel in range(2):
             dstimg_channel = dstimg[:, :, channel]
-            msk_channel = msk[:, :, 0]
+            msk_channel = msk
             
             # compute mask's center
             xs, ys = [], []
@@ -186,7 +175,7 @@ def poisson_blend(input, output, mask):
         
         out = cv2.seamlessClone(srcimg, out, msk, center, cv2.NORMAL_CLONE)
         
-        out = out[:, :, [2, 1, 0]]  # optional conversion to RGB
+        #out = out[:, :, [2, 1, 0]]  # optional conversion to RGB
         out = transforms.functional.to_tensor(out)
         out = torch.unsqueeze(out, dim=0)
         ret.append(out)
