@@ -156,6 +156,9 @@ def main(args):
                     (cbct_img.shape[3], cbct_img.shape[2])),
                 max_holes=args.max_holes,
             ).to(gpu)
+            print("Dimensioni di cbct_img:", cbct_img.shape)
+            print("Dimensioni di mask:", mask.shape)
+            print("Dimensioni di mpv:", mpv.shape)
             #x_mask = x - x * mask + mpv * mask
             x_mask = cbct_img - cbct_img * mask + mpv * mask
             input = torch.cat((x_mask, mask), dim=1)
