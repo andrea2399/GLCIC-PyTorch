@@ -4,7 +4,7 @@ import torchvision.transforms as transforms
 import numpy as np
 import cv2
 
-
+'''
 def gen_input_mask(
         shape, hole_size, hole_area=None, max_holes=1):
     """
@@ -63,7 +63,58 @@ def gen_input_mask(
                 offset_y = random.randint(0, mask_h - hole_h)
             mask[i, :, offset_y: offset_y + hole_h, offset_x: offset_x + hole_w] = 1.0
     return mask
+'''
+import random
+import torch
 
+def gen_input_mask(shape, hole_size, hole_area=None, max_holes=1):
+    """
+    * inputs:
+        - shape (sequence, required):
+                Shape of a mask tensor to be generated.
+                A sequence of length 4 (N, C, H, W) is assumed.
+        - hole_size (sequence or int, required):
+                Size of holes created in a mask.
+                If a sequence of length 2 is provided,
+                holes of size (H, W) are generated.
+                All the pixel values within holes are filled with 1.0.
+        - hole_area (sequence, optional):
+                This argument constraints the area where holes are generated.
+                hole_area[0] is the left corner (X, Y) of the area,
+                while hole_area[1] is its width and height (W, H).
+                This area is used as the input region of Local discriminator.
+                The default value is None.
+        - max_holes (int, optional):
+                This argument specifies how many holes are generated.
+                The number of holes is randomly chosen from [1, max_holes].
+                The default value is 1.
+    * returns:
+            A mask tensor of shape [N, C, H, W] with holes.
+            All the pixel values within holes are filled with 1.0,
+            while the other pixel values are zeros.
+    """
+    mask = torch.zeros(shape)
+    bsize, _, mask_h, mask_w = mask.shape
+    for i in range(bsize):
+        # Imposta il numero di buchi a 1
+        n_holes = 1
+        for _ in range(n_holes):
+            # Altezza del buco uguale all'altezza dell'immagine
+            hole_h = mask_h
+            
+            # Larghezza del buco scelta casualmente
+            if isinstance(hole_size, tuple) and len(hole_size) == 2:
+                hole_w = random.randint(hole_size[0], hole_size[1])
+            else:
+                hole_w = hole_size
+
+            # Scegli la coordinata x casuale per il buco
+            offset_x = random.randint(0, mask_w - hole_w)
+            offset_y = 0  # Il buco copre tutta l'altezza
+
+            # Riempie il buco con 1.0
+            mask[i, :, offset_y: offset_y + hole_h, offset_x: offset_x + hole_w] = 1.0
+    return mask
 
 def gen_hole_area(size, mask_size):
     """
