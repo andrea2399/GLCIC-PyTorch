@@ -135,6 +135,7 @@ def poisson_blend(input, output, mask):
     input = input.clone().cpu()
     output = output.clone().cpu()
     mask = mask.clone().cpu()
+    mask = (mask > 0.5).float()  # convert to binary mask
     mask = torch.cat((mask, mask), dim=1)  # convert to 2-channel format
     num_samples = input.shape[0]
     ret = []
@@ -158,10 +159,11 @@ def poisson_blend(input, output, mask):
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        
-        dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
-        out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
-        
+        dstimg = cv2.inpaint(dstimg, msk[:, :, 0], 1, cv2.INPAINT_TELEA)
+       
+        #dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
+        #out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
+        out = cv2.seamlessClone(srcimg, dstimg,  msk[:, :, 0], center, cv2.NORMAL_CLONE)
         out = transforms.functional.to_tensor(out)
         out = torch.unsqueeze(out, dim=0)
         ret.append(out)
