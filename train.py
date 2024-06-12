@@ -243,8 +243,8 @@ def main(args):
     # ================================================
     # load context discriminator
     model_cd = ContextDiscriminator(
-        local_input_shape=(2, args.ld_input_size, args.ld_input_size),
-        global_input_shape=(2, args.cn_input_size, args.cn_input_size),
+        local_input_shape=(1, args.ld_input_size, args.ld_input_size),
+        global_input_shape=(1, args.cn_input_size, args.cn_input_size),
         arc=args.arc)
     if args.init_model_cd is not None:
         model_cd.load_state_dict(torch.load(
