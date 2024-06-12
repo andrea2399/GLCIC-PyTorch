@@ -118,7 +118,11 @@ def main(args):
     alpha = torch.tensor(
         args.alpha,
         dtype=torch.float32).to(gpu)
-
+    if mpv.shape[1] == 3:  # Verifica se mpv ha 3 canali
+        mpv = 0.2989 * mpv[:, 0:1, :, :] + 0.5870 * mpv[:, 1:2, :, :] + 0.1140 * mpv[:, 2:3, :, :]
+    #else:
+        #mpv = mpv
+    
     # ================================================
     # Training Phase 1
     # ================================================
@@ -160,12 +164,12 @@ def main(args):
             print("Dimensioni di mask:", mask.shape)
             print("Dimensioni di mpv:", mpv.shape)
                 # Se mpv è RGB, converti in scala di grigi
-            if mpv.shape[1] == 3:  # Verifica se mpv ha 3 canali
-                mpv_grayscale = 0.2989 * mpv[:, 0:1, :, :] + 0.5870 * mpv[:, 1:2, :, :] + 0.1140 * mpv[:, 2:3, :, :]
-            else:
-                mpv_grayscale = mpv
+            #if mpv.shape[1] == 3:  # Verifica se mpv ha 3 canali
+                #mpv_grayscale = 0.2989 * mpv[:, 0:1, :, :] + 0.5870 * mpv[:, 1:2, :, :] + 0.1140 * mpv[:, 2:3, :, :]
+            #else:
+                #mpv_grayscale = mpv
             #x_mask = x - x * mask + mpv * mask
-            x_mask = cbct_img - cbct_img * mask + mpv_grayscale * mask
+            x_mask = cbct_img - cbct_img * mask + mpv * mask
             input = torch.cat((x_mask, mask), dim=1)
             output = model_cn(input)
             #loss = completion_network_loss(x, output, mask)
