@@ -65,7 +65,7 @@ def gen_input_mask(
     return mask
 '''
 
-def gen_input_mask(shape, hole_size, hole_area=None, max_holes=1):
+def gen_input_mask(shape, hole_size, hole_area=None):
     """
     * inputs:
         - shape (sequence, required):
