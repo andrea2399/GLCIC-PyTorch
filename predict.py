@@ -375,19 +375,19 @@ def main(args):
     ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(ct_img)
     ct_img = transforms.ToTensor()(ct_img).to(gpu)
 
-    stacked_img = torch.cat([cbct_img.unsqueeze(0), ct_img.unsqueeze(0)], dim=1).unsqueeze(0)
+    stacked_img = torch.cat([cbct_img, ct_img], dim=1)
     
     # Create mask for CBCT image only
     mask_cbct = gen_input_mask(
-        shape=(1, 1, cbct_img.shape[1], cbct_img.shape[2]),
+        shape=(cbct_img.shape[0], 1, cbct_img.shape[1], cbct_img.shape[2]),
         hole_size=(args.hole_min_w, args.hole_max_w)
     ).to(gpu)
 
     # Create mask for CT image that preserves it (all zeros)
-    mask_ct = torch.zeros((1, 1, ct_img.shape[1], ct_img.shape[2]), device=gpu)
+    mask_ct = torch.zeros((ct_img.shape[0], 1, ct_img.shape[1], ct_img.shape[2]), device=gpu)
 
     # Stack masks along the channel dimension
-    mask = torch.cat((mask_cbct, mask_ct), dim=1).unsqueeze(0)
+    mask = torch.cat((mask_cbct, mask_ct), dim=1)
 
     # Inpaint CBCT image
     model.eval()
@@ -395,7 +395,7 @@ def main(args):
         x_mask = stacked_img - stacked_img * mask + mpv * mask
         input_cbct = torch.cat((x_mask, mask), dim=1)
         output = model(input_cbct)
-        inpainted_cbct = poisson_blend(x_mask.squeeze(0), output, mask.squeeze(0))
+        inpainted_cbct = poisson_blend(x_mask, output, mask)
 
         # Save combined images
         save_image(stacked_img[0], os.path.join(args.output_img, 'input.png'))
