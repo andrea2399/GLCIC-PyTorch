@@ -181,8 +181,6 @@ def main(args):
         hole_size=(
             (args.hole_min_w, args.hole_max_w)),
             #(args.hole_min_h, args.hole_max_h),
-        ),
-        max_holes=args.max_holes,
     ).to(gpu)
 
     # Inpaint
