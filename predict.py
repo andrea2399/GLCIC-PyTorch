@@ -32,6 +32,10 @@ def main(args):
     args.cbct_img = os.path.expanduser(args.cbct_img)
     args.ct_img = os.path.expanduser(args.ct_img)
     args.output_img = os.path.expanduser(args.output_img)
+    if not torch.cuda.is_available():
+        raise Exception('At least one gpu must be available.')
+    gpu = torch.device('cuda:0')
+
 
     # =============================================
     # Load model
