@@ -77,7 +77,8 @@ def main(args):
         recursive_search=args.recursive_search)
     test_dset = ImageDataset(
         os.path.join(args.data_dir, 'test'),
-        trnsfm,
+        trnsfm,crop
+        
         recursive_search=args.recursive_search)
     train_loader = DataLoader(
         train_dset,
@@ -300,7 +301,7 @@ def main(args):
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
             #input_ld_fake = crop(input_gd_fake, hole_area_fake)
-            input_ld_fake, cropped_mask_fake = crop(output_cn, mask, args.ld_input_size)
+            input_ld_fake = crop(output_cn, mask, args.ld_input_size)
             output_fake = model_cd((
                 input_ld_fake.to(gpu),
                 input_gd_fake.to(gpu)))
@@ -319,7 +320,7 @@ def main(args):
             loss_real = bceloss(output_real, real)
             '''
             real = torch.ones((len(cbct_img), 1)).to(gpu)
-            input_ld_real,cropped_mask_real = crop(cbct_img, mask, args.ld_input_size)
+            input_ld_real = crop(cbct_img, mask, args.ld_input_size)
             input_gd_real = cbct_img
             output_real = model_cd((input_ld_real, input_gd_real))
             #output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
@@ -407,7 +408,7 @@ def main(args):
             input_cn = torch.cat((x_mask, mask), dim=1)
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
-            input_ld_fake, cropped_mask_fake = crop(input_gd_fake, mask, args.ld_input_size)
+            input_ld_fake = crop(input_gd_fake, mask, args.ld_input_size)
             output_fake = model_cd((
                 input_ld_fake.to(gpu),
                 input_gd_fake.to(gpu)))
@@ -416,7 +417,7 @@ def main(args):
             # real forward
             real = torch.ones((len(cbct_img), 1)).to(gpu)
             #input_gd_real = cbct_img
-            input_ld_real, cropped_mask_real = crop(cbct_img, mask, args.ld_input_size)
+            input_ld_real = crop(cbct_img, mask, args.ld_input_size)
             #output_real = model_cd((input_ld_real, input_gd_real))
             input_gd_real = cbct_img
             output_real = model_cd((input_ld_real, input_gd_real))
@@ -436,7 +437,7 @@ def main(args):
             # forward model_cn
             loss_cn_1 = completion_network_loss(cbct_img, output_cn, mask)
             input_gd_fake = output_cn
-            input_ld_fake, cropped_mask_fake = crop(input_gd_fake, mask, args.ld_input_size)
+            input_ld_fake = crop(input_gd_fake, mask, args.ld_input_size)
             output_fake = model_cd((
                 input_ld_fake.to(gpu),
                 input_gd_fake.to(gpu)))
