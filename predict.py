@@ -55,13 +55,13 @@ def main(args):
     # Load and process CBCT image
     cbct_img = Image.open(args.cbct_img).convert('L')
     cbct_img = transforms.Resize((args.img_size, args.img_size_1))(cbct_img)
-    cbct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
+    cbct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(cbct_img)
     #cbct_img = transforms.ToTensor()(cbct_img)
 
     # Load and process CT image
     ct_img = Image.open(args.ct_img).convert('L')
     ct_img = transforms.Resize((args.img_size, args.img_size_1))(ct_img)
-    ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
+    ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(ct_img)
     #ct_img = transforms.ToTensor()(ct_img)
 
     # Create stacked image
