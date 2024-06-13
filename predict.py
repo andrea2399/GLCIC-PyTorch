@@ -211,7 +211,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
 '''
-
 import os
 import argparse
 import json
@@ -276,29 +275,29 @@ def main(args):
     mask_cbct = gen_input_mask(
         shape=(1, 1, cbct_img.shape[1], cbct_img.shape[2]),
         hole_size=(
-            (args.hole_min_w, args.hole_max_w)),
-            #(args.hole_min_h, args.hole_max_h),
-        #),
-        #max_holes=args.max_holes,
+            (args.hole_min_w, args.hole_max_w),
+            (args.hole_min_h, args.hole_max_h),
+        ),
+        max_holes=args.max_holes,
     ).to(gpu)
 
-    # Expand mask_cbct to match the dimensions of cbct_img
-    mask_cbct = mask_cbct.expand_as(cbct_img)
+    # Unsqueeze to add batch dimension
+    mask_cbct = torch.unsqueeze(mask_cbct, dim=0)
 
     # Inpaint CBCT image
     model.eval()
     with torch.no_grad():
         x_mask_cbct = cbct_img - cbct_img * mask_cbct + mpv[:, :1, :, :] * mask_cbct
-        input_cbct = torch.cat((x_mask_cbct.unsqueeze(0), mask_cbct.unsqueeze(0)), dim=1)
+        input_cbct = torch.cat((x_mask_cbct, mask_cbct), dim=1)
         output_cbct = model(input_cbct)
-        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct.squeeze(0), mask_cbct)
+        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct.squeeze(0), mask_cbct.squeeze(0))
 
         # Combine the inpainted CBCT image with the unchanged CT image
         combined_img = torch.cat([inpainted_cbct.unsqueeze(0), ct_img.unsqueeze(0)], dim=0)
 
         # Save combined images
         save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
-        save_image(x_mask_cbct, os.path.join(args.output_img, 'x_mask_cbct.png'))
+        save_image(x_mask_cbct.squeeze(0), os.path.join(args.output_img, 'x_mask_cbct.png'))
         save_image(inpainted_cbct, os.path.join(args.output_img, 'inpainted_cbct.png'))
 
         # Save individual channels
