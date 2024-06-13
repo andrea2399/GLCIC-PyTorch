@@ -104,10 +104,10 @@ def gen_input_mask(shape, hole_size, hole_area=None):
             #if isinstance(hole_size, tuple) and len(hole_size) == 1 and isinstance(hole_size[0], tuple) and len(hole_size[0]) == 2:
             if isinstance(hole_size, tuple) and len(hole_size) == 2:
                 hole_w = random.randint(hole_size[0], hole_size[1])
-                print("Sono dentro")    
+                #print("Sono dentro")    
             else:
                 hole_w = hole_size
-                print("Sono fuori")    
+                #print("Sono fuori")    
 
             if hole_area is not None:
                 offset_x = hole_area[0][0] + random.randint(0, hole_area[1][0] - hole_w)
