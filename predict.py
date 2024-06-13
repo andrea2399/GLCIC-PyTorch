@@ -109,7 +109,7 @@ if __name__ == '__main__':
     main(args)
 '''
 
-
+'''
 import os
 import argparse
 import json
@@ -210,7 +210,7 @@ def main(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
-
+'''
 
 '''
 import os
@@ -315,7 +315,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
 '''
-'''
 import os
 import argparse
 import json
@@ -376,7 +375,7 @@ def main(args):
     ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(ct_img)
     ct_img = transforms.ToTensor()(ct_img).to(gpu)
 
-    stacked_img = torch.cat([cbct_img, ct_img], dim=1)
+    stacked_img = torch.cat([cbct_img, ct_img], dim=0).unsqueeze(0)  # Add batch dimension
     
     # Create mask for CBCT image only
     mask_cbct = gen_input_mask(
@@ -416,4 +415,4 @@ def main(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
-'''
+
