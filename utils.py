@@ -160,8 +160,9 @@ def crop(image, mask, size):
     top = random.randint(0, max(0, h - size))
     left = random.randint(0, max(0, w - size))
     cropped_image = image[:, :, top:top + size, left:left + size]
-    cropped_mask = mask[:, :, top:top + size, left:left + size]
-    return cropped_image, cropped_mask
+    #cropped_mask = mask[:, :, top:top + size, left:left + size]
+    return cropped_image
+    #, cropped_mask
 
 def sample_random_batch(dataset, batch_size=32):
     """
