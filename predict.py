@@ -70,6 +70,7 @@ def main(args):
     stacked_img = np.stack([cbct_array, ct_array], axis=-1)
     stacked_img = Image.fromarray(stacked_img)
     stacked_img = transforms.ToTensor()(stacked_img)
+    stacked_img = stacked_img.to(gpu)
     #stacked_img = torch.stack((cbct_img, ct_img), dim=0)
     #stacked_img = torch.unsqueeze(stacked_img, dim=0)  # Add batch dimension
     # create mask
