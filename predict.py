@@ -394,7 +394,7 @@ def main(args):
     with torch.no_grad():
         x_mask = stacked_img - stacked_img * mask + mpv * mask
         input_cbct = torch.cat((x_mask, mask), dim=1)
-        output = model(input_cbct.squeeze(0))
+        output = model(input_cbct)
         inpainted_cbct = poisson_blend(x_mask.squeeze(0), output, mask.squeeze(0))
 
         # Save combined images
