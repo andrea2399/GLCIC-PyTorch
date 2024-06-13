@@ -298,18 +298,7 @@ def main(args):
         #output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
 
         inpainted_cbct = poisson_blend(x_mask, output, mask)#.squeeze(0))
-
-        # Combine the inpainted CBCT image with the unchanged CT image
-        #combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
-'''
-        # Save combined images and individual channels
-        save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
-        save_image(x_mask_cbct.squeeze(0), os.path.join(args.output_img, 'x_mask_cbct.png'))
-        save_image(inpainted_cbct, os.path.join(args.output_img, 'inpainted_cbct.png'))
-        save_image(combined_img[0], os.path.join(args.output_img, 'combined_cbct.png'))
-        save_image(combined_img[1], os.path.join(args.output_img, 'combined_ct.png'))
-'''
-        # Save combined images
+                # Save combined images
         save_image(stacked_img[0], os.path.join(args.output_img, 'input.png'))
         save_image(x_mask[0], os.path.join(args.output_img, 'x_mask.png'))
         save_image(inpainted[0], os.path.join(args.output_img, 'inpainted.png'))
@@ -321,6 +310,18 @@ def main(args):
         save_image(x_mask[0, 1], os.path.join(args.output_img, 'x_mask_ct.png'))
         save_image(inpainted[0, 0], os.path.join(args.output_img, 'inpainted_cbct.png'))
         save_image(inpainted[0, 1], os.path.join(args.output_img, 'inpainted_ct.png'))
+
+        # Combine the inpainted CBCT image with the unchanged CT image
+        #combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
+'''
+        # Save combined images and individual channels
+        save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
+        save_image(x_mask_cbct.squeeze(0), os.path.join(args.output_img, 'x_mask_cbct.png'))
+        save_image(inpainted_cbct, os.path.join(args.output_img, 'inpainted_cbct.png'))
+        save_image(combined_img[0], os.path.join(args.output_img, 'combined_cbct.png'))
+        save_image(combined_img[1], os.path.join(args.output_img, 'combined_ct.png'))
+'''
+
     print('Output images were saved in %s.' % args.output_img)
 
 if __name__ == '__main__':
