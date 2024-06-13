@@ -232,7 +232,7 @@ parser.add_argument('--max_holes', type=int, default=5)
 parser.add_argument('--img_size', type=int, default=160)
 parser.add_argument('--img_size_1', type=int, default=160)
 parser.add_argument('--hole_min_w', type=int, default=24)
-parser.add_argument('--hole_max_w', type=int, default48)
+parser.add_argument('--hole_max_w', type=int, default=48)
 parser.add_argument('--hole_min_h', type=int, default=24)
 parser.add_argument('--hole_max_h', type=int, default=48)
 
