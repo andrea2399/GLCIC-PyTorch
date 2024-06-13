@@ -149,6 +149,7 @@ def main(args):
             #cbct_img = transforms.Grayscale(num_output_channels=1)(cbct_img).to(gpu)
             #stacked_img = stacked_img.to(gpu)
             cbct_img = cbct_img.to(gpu)
+            '''
             mask = gen_input_mask(
                 #shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
                 shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
@@ -160,6 +161,14 @@ def main(args):
                     (cbct_img.shape[3], cbct_img.shape[2])),
                 max_holes=args.max_holes,
             ).to(gpu)
+            '''
+            mask = gen_input_mask(
+                shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
+                hole_size=(
+                    (args.hole_min_w, args.hole_max_w),
+                    #(args.hole_min_h, args.hole_max_h)),
+            ).to(gpu)
+
             #print("Dimensioni di cbct_img:", cbct_img.shape)
             #print("Dimensioni di mask:", mask.shape)
             #print("Dimensioni di mpv:", mpv.shape)
@@ -197,6 +206,7 @@ def main(args):
                             batch_size=args.num_test_completions).to(gpu)
                         #stacked_img = stacked_img.to(gpu)
                         cbct_img = cbct_img.to(gpu)
+                        '''
                         mask = gen_input_mask(
                             shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                             #shape=(x.shape[0], 1, x.shape[2], x.shape[3]),
@@ -207,14 +217,21 @@ def main(args):
                                 (args.ld_input_size, args.ld_input_size),
                                 (cbct_img.shape[3], cbct_img.shape[2])),
                             max_holes=args.max_holes).to(gpu)
+                            '''
+                         mask = gen_input_mask(
+                             shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
+                             hole_size=(
+                                 (args.hole_min_w, args.hole_max_w),
+                                 #(args.hole_min_h, args.hole_max_h)),
+                             ).to(gpu)                        
                         #x_mask = x - x * mask + mpv * mask
                         x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
-                        print("cbct_img.shape:", cbct_img.shape)
-                        print("x_mask.shape:", x_mask.shape)
-                        print("completed.shape:", completed.shape)
+                        #print("cbct_img.shape:", cbct_img.shape)
+                        #print("x_mask.shape:", x_mask.shape)
+                        #print("completed.shape:", completed.shape)
 
                         imgs = torch.cat((
                             cbct_img.cpu(),
@@ -270,28 +287,27 @@ def main(args):
             #x = x.to(gpu), stacked_img, 
             #stacked_img = stacked_img.to(gpu)
             cbct_img = cbct_img.to(gpu)
-            hole_area_fake = gen_hole_area(
-                (args.ld_input_size, args.ld_input_size),
-                (cbct_img.shape[3], cbct_img.shape[2]))
             mask = gen_input_mask(
                 shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                 hole_size=(
                     (args.hole_min_w, args.hole_max_w),
-                    (args.hole_min_h, args.hole_max_h)),
-                hole_area=hole_area_fake,
-                max_holes=args.max_holes).to(gpu)
+                    #(args.hole_min_h, args.hole_max_h)),
+            ).to(gpu)            
             fake = torch.zeros((len(cbct_img), 1)).to(gpu)
             x_mask = cbct_img - cbct_img * mask + mpv * mask
             input_cn = torch.cat((x_mask, mask), dim=1)
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
-            input_ld_fake = crop(input_gd_fake, hole_area_fake)
-            output_fake = model_cd((
-                input_ld_fake.to(gpu),
-                input_gd_fake.to(gpu)))
+            #input_ld_fake = crop(input_gd_fake, hole_area_fake)
+            input_ld_fake, cropped_mask_fake = crop(output_cn, mask, args.ld_input_size)
+            #output_fake = model_cd((
+                #input_ld_fake.to(gpu),
+                #input_gd_fake.to(gpu)))
+            output_fake = model_cd(torch.cat((input_ld_fake, cropped_mask_fake), dim=1))
             loss_fake = bceloss(output_fake, fake)
 
             # real forward
+            '''
             hole_area_real = gen_hole_area(
                 (args.ld_input_size, args.ld_input_size),
                 (cbct_img.shape[3], cbct_img.shape[2]))
@@ -300,7 +316,11 @@ def main(args):
             input_ld_real = crop(input_gd_real, hole_area_real)
             output_real = model_cd((input_ld_real, input_gd_real))
             loss_real = bceloss(output_real, real)
-
+            '''
+            real = torch.ones((len(cbct_img), 1)).to(gpu)
+            input_ld_real,cropped_mask_real = crop(cbct_img, mask, args.ld_input_size)
+            output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
+            loss_real = bceloss()(output_real, real)
             # reduce
             loss = (loss_fake + loss_real) / 2.
 
@@ -326,14 +346,11 @@ def main(args):
                         #stacked_img = stacked_img.to(gpu)
                         cbct_img = cbct_img.to(gpu)
                         mask = gen_input_mask(
-                            shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
-                            hole_size=(
-                                (args.hole_min_w, args.hole_max_w),
-                                (args.hole_min_h, args.hole_max_h)),
-                            hole_area=gen_hole_area(
-                                (args.ld_input_size, args.ld_input_size),
-                                (cbct_img.shape[3], cbct_img.shape[2])),
-                            max_holes=args.max_holes).to(gpu)
+                             shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
+                             hole_size=(
+                                 (args.hole_min_w, args.hole_max_w),
+                                 #(args.hole_min_h, args.hole_max_h)),
+                             ).to(gpu)                         
                         x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
@@ -374,16 +391,12 @@ def main(args):
             # forward model_cdstacked_img,
             #stacked_img = stacked_img.to(gpu)
             cbct_img = cbct_img.to(gpu)
-            hole_area_fake = gen_hole_area(
-                (args.ld_input_size, args.ld_input_size),
-                (cbct_img.shape[3], cbct_img.shape[2]))
             mask = gen_input_mask(
                 shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
                 hole_size=(
                     (args.hole_min_w, args.hole_max_w),
-                    (args.hole_min_h, args.hole_max_h)),
-                hole_area=hole_area_fake,
-                max_holes=args.max_holes).to(gpu)
+                    #(args.hole_min_h, args.hole_max_h)),
+            ).to(gpu) 
 
             # fake forward
             fake = torch.zeros((len(cbct_img), 1)).to(gpu)
@@ -391,18 +404,16 @@ def main(args):
             input_cn = torch.cat((x_mask, mask), dim=1)
             output_cn = model_cn(input_cn)
             input_gd_fake = output_cn.detach()
-            input_ld_fake = crop(input_gd_fake, hole_area_fake)
-            output_fake = model_cd((input_ld_fake, input_gd_fake))
+            input_ld_fake, cropped_mask_fake = crop(input_gd_fake, mask, args.ld_input_size)
+            output_fake = model_cd(torch.cat((input_ld_fake, cropped_mask_fake), dim=1))
             loss_cd_fake = bceloss(output_fake, fake)
 
             # real forward
-            hole_area_real = gen_hole_area(
-                (args.ld_input_size, args.ld_input_size),
-                (cbct_img.shape[3], cbct_img.shape[2]))
             real = torch.ones((len(cbct_img), 1)).to(gpu)
-            input_gd_real = cbct_img
-            input_ld_real = crop(input_gd_real, hole_area_real)
-            output_real = model_cd((input_ld_real, input_gd_real))
+            #input_gd_real = cbct_img
+            input_ld_real, cropped_mask_real = crop(cbct_img, mask, args.ld_input_size)
+            #output_real = model_cd((input_ld_real, input_gd_real))
+            output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
             loss_cd_real = bceloss(output_real, real)
 
             # reduce
@@ -419,8 +430,8 @@ def main(args):
             # forward model_cn
             loss_cn_1 = completion_network_loss(cbct_img, output_cn, mask)
             input_gd_fake = output_cn
-            input_ld_fake = crop(input_gd_fake, hole_area_fake)
-            output_fake = model_cd((input_ld_fake, (input_gd_fake)))
+            input_ld_fake, cropped_mask_fake = crop(input_gd_fake, mask, args.ld_input_size)
+            output_fake = model_cd(torch.cat((input_ld_fake, cropped_mask_fake), dim=1))
             loss_cn_2 = bceloss(output_fake, real)
 
             # reduce
@@ -449,13 +460,8 @@ def main(args):
                             batch_size=args.num_test_completions).to(gpu)
                         mask = gen_input_mask(
                             shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
-                            hole_size=(
-                                (args.hole_min_w, args.hole_max_w),
-                                (args.hole_min_h, args.hole_max_h)),
-                            hole_area=gen_hole_area(
-                                (args.ld_input_size, args.ld_input_size),
-                                (cbct_img.shape[3], cbct_img.shape[2])),
-                            max_holes=args.max_holes).to(gpu)
+                            hole_size=(args.hole_min_w, args.hole_max_w),  
+                        ).to(gpu)
                         x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
