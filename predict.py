@@ -191,11 +191,20 @@ def main(args):
         output = model(input)
         inpainted = poisson_blend(x_mask, output, mask)
 
-        # Save images
+        # Save combined images
         save_image(stacked_img[0], os.path.join(args.output_img, 'input.png'))
         save_image(x_mask[0], os.path.join(args.output_img, 'x_mask.png'))
         save_image(inpainted[0], os.path.join(args.output_img, 'inpainted.png'))
-    print('Output img was saved as %s.' % args.output_img)
+
+        # Save individual channels
+        save_image(stacked_img[0, 0], os.path.join(args.output_img, 'input_cbct.png'))
+        save_image(stacked_img[0, 1], os.path.join(args.output_img, 'input_ct.png'))
+        save_image(x_mask[0, 0], os.path.join(args.output_img, 'x_mask_cbct.png'))
+        save_image(x_mask[0, 1], os.path.join(args.output_img, 'x_mask_ct.png'))
+        save_image(inpainted[0, 0], os.path.join(args.output_img, 'inpainted_cbct.png'))
+        save_image(inpainted[0, 1], os.path.join(args.output_img, 'inpainted_ct.png'))
+    print('Output images were saved in %s.' % args.output_img)
+
 
 
 if __name__ == '__main__':
