@@ -376,7 +376,7 @@ def main(args):
     ct_img = transforms.ToTensor()(ct_img).to(gpu)
 
     stacked_img = torch.cat([cbct_img, ct_img], dim=0).unsqueeze(0)  # Add batch dimension
-    
+
     # Create mask for CBCT image only
     mask_cbct = gen_input_mask(
         shape=(cbct_img.shape[0], 1, cbct_img.shape[1], cbct_img.shape[2]),
@@ -385,14 +385,19 @@ def main(args):
 
     # Create mask for CT image that preserves it (all zeros)
     mask_ct = torch.zeros((ct_img.shape[0], 1, ct_img.shape[1], ct_img.shape[2]), device=gpu)
-
+    
     # Stack masks along the channel dimension
     mask = torch.cat((mask_cbct, mask_ct), dim=0)
 
+    cbct_img = cbct_img.unsqueeze(0)
+    ct_img = ct_img.unsqueeze(0)
     # Inpaint CBCT image
     model.eval()
     with torch.no_grad():
-        x_mask = stacked_img - stacked_img * mask + mpv * mask
+        x_mask_cbct = cbct_img -cbct_img * mask_cbct + mpv * mask_cbct
+        x_mask_ct = ct_img - ct_img * mask_ct + mpv * mask_ct
+        #x_mask = stacked_img - stacked_img * mask + mpv * mask
+        x_mask = torch.cat((x_mask_cbct, x_mask_ct), dim=0)
         input_cbct = torch.cat((x_mask, mask), dim=1)
         output = model(input_cbct)
         inpainted_cbct = poisson_blend(x_mask, output, mask)
