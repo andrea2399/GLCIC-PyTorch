@@ -284,7 +284,7 @@ def main(args):
     # Inpaint CBCT image
     model.eval()
     with torch.no_grad():
-        x_mask_cbct = cbct_img - cbct_img * mask_cbct + mpv[:, :1, :, :] * mask_cbct
+        x_mask_cbct = cbct_img - cbct_img * mask_cbct + mpv * mask_cbct #mpv[:, :1, :, :] * mask_cbct
         input_cbct = torch.cat((x_mask_cbct, mask_cbct), dim=1)  # Check if concatenation is correct
         output_cbct = model(input_cbct)
 
