@@ -124,17 +124,17 @@ from utils import poisson_blend, gen_input_mask
 
 parser = argparse.ArgumentParser()
 parser.add_argument('model')
-parser.add.argument('config')
-parser.add.argument('cbct_img')
-parser.add.argument('ct_img')
-parser.add.argument('output_img')
-parser.add.argument('--max_holes', type=int, default=5)
-parser.add.argument('--img_size', type=int, default=160)
-parser.add.argument('--img_size_1', type=int, default=160)
-parser.add.argument('--hole_min_w', type=int, default=24)
-parser.add.argument('--hole_max_w', type=int, default=48)
-parser.add.argument('--hole_min_h', type=int, default=24)
-parser.add.argument('--hole_max_h', type=int, default=48)
+parser.add_argument('config')
+parser.add_argument('cbct_img')
+parser.add_argument('ct_img')
+parser.add_argument('output_img')
+parser.add_argument('--max_holes', type=int, default=5)
+parser.add_argument('--img_size', type=int, default=160)
+parser.add_argument('--img_size_1', type=int, default=160)
+parser.add_argument('--hole_min_w', type=int, default=24)
+parser.add_argument('--hole_max_w', type=int, default=48)
+parser.add_argument('--hole_min_h', type=int, default=24)
+parser.add_argument('--hole_max_h', type=int, default=48)
 
 
 def main(args):
@@ -179,8 +179,8 @@ def main(args):
     mask = gen_input_mask(
         shape=(stacked_img.shape[0], 1, stacked_img.shape[2], stacked_img.shape[3]),
         hole_size=(
-            (args.hole_min_w, args.hole_max_w),
-            (args.hole_min_h, args.hole_max_h),
+            (args.hole_min_w, args.hole_max_w)),
+            #(args.hole_min_h, args.hole_max_h),
         ),
         max_holes=args.max_holes,
     ).to(gpu)
