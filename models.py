@@ -149,7 +149,7 @@ class GlobalDiscriminator(nn.Module):
         super(GlobalDiscriminator, self).__init__()
         self.arc = arc
         self.input_shape = input_shape
-        print(input_shape)
+        #print(input_shape)
         self.output_shape = (1024,)
         self.img_c = input_shape[0]
         self.img_h = input_shape[1]
