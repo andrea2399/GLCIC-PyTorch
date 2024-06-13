@@ -271,11 +271,11 @@ def main(args):
     ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(ct_img)
     ct_img = transforms.ToTensor()(ct_img).to(gpu)
 
-    stacked_img = torch.cat([cbct_img, ct_img], dim=0).unsqueeze(0)
+    stacked_img = torch.cat([cbct_img, ct_img], dim=0)#.unsqueeze(0)
     
     # Create mask for CBCT image only
     mask_cbct = gen_input_mask(
-        shape=(cbct_img.shape[0], 1, cbct_img.shape[1], cbct_img.shape[2]),
+        shape=(1, 1, cbct_img.shape[1], cbct_img.shape[2]),
         hole_size=(
             (args.hole_min_w, args.hole_max_w)),
     ).to(gpu)
