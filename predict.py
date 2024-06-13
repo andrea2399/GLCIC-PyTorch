@@ -279,7 +279,7 @@ def main(args):
     ).to(gpu)
 
     # Unsqueeze to add batch dimension
-    mask_cbct = torch.unsqueeze(mask_cbct, dim=0)
+    #mask_cbct = torch.unsqueeze(mask_cbct, dim=0)
 
     # Inpaint CBCT image
     model.eval()
@@ -291,7 +291,7 @@ def main(args):
         # Ensure output is reshaped properly (if needed) based on the model's output expectations
         #output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
 
-        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct, mask_cbct.squeeze(0))
+        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct, mask_cbct)#.squeeze(0))
 
         # Combine the inpainted CBCT image with the unchanged CT image
         combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
