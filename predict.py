@@ -212,7 +212,7 @@ if __name__ == '__main__':
     main(args)
 '''
 
-'''
+
 import os
 import argparse
 import json
@@ -314,6 +314,7 @@ def main(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
+
 '''
 import os
 import argparse
@@ -415,3 +416,4 @@ def main(args):
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
+'''
