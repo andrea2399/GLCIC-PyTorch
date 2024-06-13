@@ -77,8 +77,7 @@ def main(args):
         recursive_search=args.recursive_search)
     test_dset = ImageDataset(
         os.path.join(args.data_dir, 'test'),
-        trnsfm,crop
-        
+        trnsfm,
         recursive_search=args.recursive_search)
     train_loader = DataLoader(
         train_dset,
