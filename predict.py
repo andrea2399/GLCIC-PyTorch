@@ -387,7 +387,7 @@ def main(args):
     mask_ct = torch.zeros((1, 1, ct_img.shape[1], ct_img.shape[2]), device=gpu)
 
     # Stack masks along the channel dimension
-    mask = torch.cat((mask_cbct, mask_ct), dim=1)
+    mask = torch.cat((mask_cbct, mask_ct), dim=1).unsqueeze(0)
 
     # Inpaint CBCT image
     model.eval()
