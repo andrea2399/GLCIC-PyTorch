@@ -29,7 +29,8 @@ def main(args):
 
     args.model = os.path.expanduser(args.model)
     args.config = os.path.expanduser(args.config)
-    args.input_img = os.path.expanduser(args.input_img)
+    args.cbct_img = os.path.expanduser(args.cbct_img)
+    args.ct_img = os.path.expanduser(args.ct_img)
     args.output_img = os.path.expanduser(args.output_img)
 
     # =============================================
