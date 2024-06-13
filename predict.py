@@ -289,12 +289,12 @@ def main(args):
         output_cbct = model(input_cbct)
 
         # Ensure output is reshaped properly (if needed) based on the model's output expectations
-        output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
+        #output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
 
         inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct, mask_cbct.squeeze(0))
 
         # Combine the inpainted CBCT image with the unchanged CT image
-        combined_img = torch.cat([inpainted_cbct.unsqueeze(0), ct_img.unsqueeze(0)], dim=0)
+        combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
 
         # Save combined images and individual channels
         save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
