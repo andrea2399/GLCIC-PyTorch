@@ -101,10 +101,10 @@ def gen_input_mask(shape, hole_size, hole_area=None):
             hole_h = mask_h
             
             # Larghezza del buco scelta casualmente
-            if isinstance(hole_size, tuple) and len(hole_size) == 1:
+            if isinstance(hole_size, tuple) and len(hole_size) == 1 and isinstance(hole_size[0], tuple) and len(hole_size[0]) == 2:
                 hole_w = random.randint(hole_size[0], hole_size[1])
             else:
-                hole_w = hole_size
+                hole_w = hole_size[0]
 
             if hole_area is not None:
                 offset_x = hole_area[0][0] + random.randint(0, hole_area[1][0] - hole_w)
