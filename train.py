@@ -301,10 +301,10 @@ def main(args):
             input_gd_fake = output_cn.detach()
             #input_ld_fake = crop(input_gd_fake, hole_area_fake)
             input_ld_fake, cropped_mask_fake = crop(output_cn, mask, args.ld_input_size)
-            #output_fake = model_cd((
-                #input_ld_fake.to(gpu),
-                #input_gd_fake.to(gpu)))
-            output_fake = model_cd(torch.cat((input_ld_fake, cropped_mask_fake), dim=1))
+            output_fake = model_cd((
+                input_ld_fake.to(gpu),
+                input_gd_fake.to(gpu)))
+            #output_fake = model_cd(torch.cat((input_ld_fake, cropped_mask_fake), dim=1))
             loss_fake = bceloss(output_fake, fake)
 
             # real forward
@@ -320,7 +320,9 @@ def main(args):
             '''
             real = torch.ones((len(cbct_img), 1)).to(gpu)
             input_ld_real,cropped_mask_real = crop(cbct_img, mask, args.ld_input_size)
-            output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
+            input_gd_real = cbct_img
+            output_real = model_cd((input_ld_real, input_gd_real))
+            #output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
             loss_real = bceloss()(output_real, real)
             # reduce
             loss = (loss_fake + loss_real) / 2.
