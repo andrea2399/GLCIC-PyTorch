@@ -112,7 +112,7 @@ def gen_input_mask(shape, hole_size, hole_area=None):
             if hole_area is not None:
                 offset_x = hole_area[0][0] + random.randint(0, hole_area[1][0] - hole_w)
                 offset_y = hole_area[0][1]    
-            else 
+            else: 
                 offset_x = random.randint(0, mask_w - hole_w)
                 offset_y = 0  # Il buco copre tutta l'altezza
 
