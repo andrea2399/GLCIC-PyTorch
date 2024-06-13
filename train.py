@@ -218,12 +218,13 @@ def main(args):
                                 (cbct_img.shape[3], cbct_img.shape[2])),
                             max_holes=args.max_holes).to(gpu)
                             '''
-                         mask = gen_input_mask(
-                             shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
-                             hole_size=(
-                                 (args.hole_min_w, args.hole_max_w)),
-                                 #(args.hole_min_h, args.hole_max_h)),
-                             ).to(gpu)                        
+                        mask = gen_input_mask(
+                            shape=(cbct_img.shape[0], 1, cbct_img.shape[2], cbct_img.shape[3]),
+                            hole_size=(
+                                (args.hole_min_w, args.hole_max_w)),
+                                #(args.hole_min_h, args.hole_max_h)),
+                            ).to(gpu)                        
+
                         #x_mask = x - x * mask + mpv * mask
                         x_mask = cbct_img - cbct_img * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
