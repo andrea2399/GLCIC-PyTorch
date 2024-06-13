@@ -323,7 +323,7 @@ def main(args):
             input_gd_real = cbct_img
             output_real = model_cd((input_ld_real, input_gd_real))
             #output_real = model_cd(torch.cat((input_ld_real, cropped_mask_real), dim=1))
-            loss_real = bceloss()(output_real, real)
+            loss_real = bceloss(output_real, real)
             # reduce
             loss = (loss_fake + loss_real) / 2.
 
