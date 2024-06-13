@@ -72,7 +72,7 @@ class CompletionNetwork(nn.Module):
         self.bn16 = nn.BatchNorm2d(32)
         self.act16 = nn.ReLU()
         # input_shape: (None, 32, img_h, img_w)
-        self.conv17 = nn.Conv2d(32, 2, kernel_size=3, stride=1, padding=1)
+        self.conv17 = nn.Conv2d(32, 1, kernel_size=3, stride=1, padding=1)
         self.act17 = nn.Sigmoid()
         # output_shape: (None, 3, img_h. img_w)
 
