@@ -102,7 +102,7 @@ def gen_input_mask(shape, hole_size, hole_area=None):
             
             # Larghezza del buco scelta casualmente
             #if isinstance(hole_size, tuple) and len(hole_size) == 1 and isinstance(hole_size[0], tuple) and len(hole_size[0]) == 2:
-             if isinstance(hole_size, tuple) and len(hole_size) == 2:
+            if isinstance(hole_size, tuple) and len(hole_size) == 2:
                 hole_w = random.randint(hole_size[0], hole_size[1])
                 print("Sono dentro")    
             else:
