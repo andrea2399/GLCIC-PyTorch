@@ -13,9 +13,10 @@ from utils import poisson_blend, gen_input_mask
 parser = argparse.ArgumentParser()
 parser.add_argument('model')
 parser.add_argument('config')
-parser.add_argument('input_img')
+parser.add_argument('cbct_img')
+parser.add_argument('ct_img')
 parser.add_argument('output_img')
-#parser.add_argument('--max_holes', type=int, default=5)
+parser.add_argument('--max_holes', type=int, default=5)
 parser.add_argument('--img_size', type=int, default=160)
 parser.add_argument('--img_size_1', type=int, default=160)
 parser.add_argument('--hole_min_w', type=int, default=24)
@@ -37,6 +38,7 @@ def main(args):
     with open(args.config, 'r') as f:
         config = json.load(f)
     mpv = torch.tensor(config['mpv']).view(1, 3, 1, 1)
+    mpv = 0.2989 * mpv[:, 0:1, :, :] + 0.5870 * mpv[:, 1:2, :, :] + 0.1140 * mpv[:, 2:3, :, :]
     model = CompletionNetwork()
     model.load_state_dict(torch.load(args.model, map_location='cpu'))
 
