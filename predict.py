@@ -72,9 +72,9 @@ def main(args):
     cbct_array = np.array(cbct_img)
     ct_array = np.array(ct_img)
     stacked_img = np.stack([cbct_array, ct_array], axis=0)  # Change axis to 0 for channel-first
-    #stacked_img = torch.tensor(stacked_img).unsqueeze(0).to(gpu)  # Add batch dimension and convert to tensor
-    stacked_img = transforms.ToTensor() (stacked_img)
-    stacked_img = torch.unsqueeze(stacked_img, dim=0).to(gpu)
+    stacked_img = torch.tensor(stacked_img).unsqueeze(0).float().to(gpu)  # Add batch dimension and convert to tensor
+    #stacked_img = transforms.ToTensor() (stacked_img)
+    #stacked_img = torch.unsqueeze(stacked_img, dim=0).to(gpu)
     #stacked_img = np.stack([cbct_array, ct_array], axis=-1)
     #stacked_img = Image.fromarray(stacked_img)
     #stacked_img = transforms.ToTensor()(stacked_img)
