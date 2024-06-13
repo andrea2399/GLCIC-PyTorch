@@ -15,7 +15,7 @@ parser.add_argument('model')
 parser.add_argument('config')
 parser.add_argument('input_img')
 parser.add_argument('output_img')
-parser.add_argument('--max_holes', type=int, default=5)
+#parser.add_argument('--max_holes', type=int, default=5)
 parser.add_argument('--img_size', type=int, default=160)
 parser.add_argument('--img_size_1', type=int, default=160)
 parser.add_argument('--hole_min_w', type=int, default=24)
@@ -44,32 +44,48 @@ def main(args):
     # Predict
     # =============================================
     # convert img to tensor
-    img = Image.open(args.input_img)
-    img = transforms.Resize((args.img_size, args.img_size_1))(img)
+    #img = Image.open(args.input_img)
+    #img = transforms.Resize((args.img_size, args.img_size_1))(img)
     #img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
-    x = transforms.ToTensor()(img)
-    x = torch.unsqueeze(x, dim=0)
+    #x = transforms.ToTensor()(img)
+    #x = torch.unsqueeze(x, dim=0)
+    # Load and process CBCT image
+    cbct_img = Image.open(args.cbct_img).convert('L')
+    cbct_img = transforms.Resize((args.img_size, args.img_size_1))(cbct_img)
+    cbct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
+    #cbct_img = transforms.ToTensor()(cbct_img)
 
+    # Load and process CT image
+    ct_img = Image.open(args.ct_img).convert('L')
+    ct_img = transforms.Resize((args.img_size, args.img_size_1))(ct_img)
+    ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
+    #ct_img = transforms.ToTensor()(ct_img)
+
+    # Create stacked image
+    cbct_array = np.array(cbct_img)
+    ct_array = np.array(ct_img)
+    stacked_img = np.stack([cbct_array, ct_array], axis=-1)
+    stacked_img = Image.fromarray(stacked_img)
+    stacked_img = transforms.ToTensor()(stacked_img)
+    #stacked_img = torch.stack((cbct_img, ct_img), dim=0)
+    #stacked_img = torch.unsqueeze(stacked_img, dim=0)  # Add batch dimension
     # create mask
     mask = gen_input_mask(
-        shape=(1, 1, x.shape[2], x.shape[3]),
+        shape=(stacked_img.shape[0], 1, stacked_img.shape[2], stacked_img.shape[3]),
         hole_size=(
-            (args.hole_min_w, args.hole_max_w),
-            (args.hole_min_h, args.hole_max_h),
-        ),
-        max_holes=args.max_holes,
-    )
+            (args.hole_min_w, args.hole_max_w)),
+        ).to(gpu)
 
     # inpaint
     model.eval()
     with torch.no_grad():
-        x_mask = x - x * mask + mpv * mask
+        x_mask = stacked_img - stacked_img * mask + mpv * mask
         input = torch.cat((x_mask, mask), dim=1)
         output = model(input)
         inpainted = poisson_blend(x_mask, output, mask)
         #imgs = torch.cat((x, x_mask, inpainted), dim=0)
         #save_image(imgs, args.output_img, nrow=3)
-        save_image(x, os.path.join(args.output_img, 'input.png'))
+        save_image(stacked_img, os.path.join(args.output_img, 'input.png'))
         save_image(x_mask, os.path.join(args.output_img, 'x_mask.png'))
         save_image(inpainted, os.path.join(args.output_img, 'inpainted.png'))
     print('output img was saved as %s.' % args.output_img)
