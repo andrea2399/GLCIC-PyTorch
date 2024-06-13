@@ -285,23 +285,25 @@ def main(args):
     model.eval()
     with torch.no_grad():
         x_mask_cbct = cbct_img - cbct_img * mask_cbct + mpv[:, :1, :, :] * mask_cbct
-        input_cbct = torch.cat((x_mask_cbct, mask_cbct), dim=1)
+        input_cbct = torch.cat((x_mask_cbct, mask_cbct), dim=1)  # Check if concatenation is correct
         output_cbct = model(input_cbct)
-        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct.squeeze(0), mask_cbct.squeeze(0))
+
+        # Ensure output is reshaped properly (if needed) based on the model's output expectations
+        output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
+
+        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct, mask_cbct.squeeze(0))
 
         # Combine the inpainted CBCT image with the unchanged CT image
         combined_img = torch.cat([inpainted_cbct.unsqueeze(0), ct_img.unsqueeze(0)], dim=0)
 
-        # Save combined images
+        # Save combined images and individual channels
         save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
         save_image(x_mask_cbct.squeeze(0), os.path.join(args.output_img, 'x_mask_cbct.png'))
         save_image(inpainted_cbct, os.path.join(args.output_img, 'inpainted_cbct.png'))
-
-        # Save individual channels
         save_image(combined_img[0], os.path.join(args.output_img, 'combined_cbct.png'))
         save_image(combined_img[1], os.path.join(args.output_img, 'combined_ct.png'))
-    print('Output images were saved in %s.' % args.output_img)
 
+    print('Output images were saved in %s.' % args.output_img)
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
