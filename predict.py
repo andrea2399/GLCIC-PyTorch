@@ -271,39 +271,58 @@ def main(args):
     ct_img = transforms.CenterCrop((args.img_size, args.img_size_1))(ct_img)
     ct_img = transforms.ToTensor()(ct_img).to(gpu)
 
+    stacked_img = torch.cat([cbct_img, ct_img], dim=0).unsqueeze(0) 
     # Create mask for CBCT image only
     mask_cbct = gen_input_mask(
         shape=(cbct_img.shape[0], 1, cbct_img.shape[1], cbct_img.shape[2]),
         hole_size=(
             (args.hole_min_w, args.hole_max_w)),
     ).to(gpu)
+    
+    # Create mask for CT image that preserves it (all zeros)
+    mask_ct = torch.zeros((1, 1, ct_img.shape[1], ct_img.shape[2]), device=gpu)
 
+    # Stack masks along the channel dimension
+    mask = torch.cat((mask_cbct, mask_ct), dim=1)
     # Unsqueeze to add batch dimension
     #mask_cbct = torch.unsqueeze(mask_cbct, dim=0)
 
     # Inpaint CBCT image
     model.eval()
     with torch.no_grad():
-        x_mask_cbct = cbct_img - cbct_img * mask_cbct + mpv * mask_cbct #mpv[:, :1, :, :] * mask_cbct
-        input_cbct = torch.cat((x_mask_cbct, mask_cbct), dim=1)  # Check if concatenation is correct
-        output_cbct = model(input_cbct)
+        x_mask = stacked_img - stacked_img * mask + mpv * mask #mpv[:, :1, :, :] * mask_cbct
+        input_cbct = torch.cat((x_mask, mask), dim=1)  # Check if concatenation is correct
+        output = model(input_cbct)
 
         # Ensure output is reshaped properly (if needed) based on the model's output expectations
         #output_cbct = output_cbct.squeeze(0)  # Assuming batch size is 1
 
-        inpainted_cbct = poisson_blend(x_mask_cbct, output_cbct, mask_cbct)#.squeeze(0))
+        inpainted_cbct = poisson_blend(x_mask, output, mask)#.squeeze(0))
 
         # Combine the inpainted CBCT image with the unchanged CT image
-        combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
-
+        #combined_img = torch.cat([inpainted_cbct, ct_img], dim=0)
+'''
         # Save combined images and individual channels
         save_image(combined_img, os.path.join(args.output_img, 'combined.png'))
         save_image(x_mask_cbct.squeeze(0), os.path.join(args.output_img, 'x_mask_cbct.png'))
         save_image(inpainted_cbct, os.path.join(args.output_img, 'inpainted_cbct.png'))
         save_image(combined_img[0], os.path.join(args.output_img, 'combined_cbct.png'))
         save_image(combined_img[1], os.path.join(args.output_img, 'combined_ct.png'))
+'''
+        # Save combined images
+        save_image(stacked_img[0], os.path.join(args.output_img, 'input.png'))
+        save_image(x_mask[0], os.path.join(args.output_img, 'x_mask.png'))
+        save_image(inpainted[0], os.path.join(args.output_img, 'inpainted.png'))
 
+        # Save individual channels
+        save_image(stacked_img[0, 0], os.path.join(args.output_img, 'input_cbct.png'))
+        save_image(stacked_img[0, 1], os.path.join(args.output_img, 'input_ct.png'))
+        save_image(x_mask[0, 0], os.path.join(args.output_img, 'x_mask_cbct.png'))
+        save_image(x_mask[0, 1], os.path.join(args.output_img, 'x_mask_ct.png'))
+        save_image(inpainted[0, 0], os.path.join(args.output_img, 'inpainted_cbct.png'))
+        save_image(inpainted[0, 1], os.path.join(args.output_img, 'inpainted_ct.png'))
     print('Output images were saved in %s.' % args.output_img)
+
 if __name__ == '__main__':
     args = parser.parse_args()
     main(args)
