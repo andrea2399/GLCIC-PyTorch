@@ -135,7 +135,7 @@ def gen_hole_area(size, mask_size):
     offset_y = random.randint(0, mask_h - harea_h)
     return ((offset_x, offset_y), (harea_w, harea_h))
 
-
+'''
 def crop(x, area):
     """
     * inputs:
@@ -151,7 +151,14 @@ def crop(x, area):
     xmin, ymin = area[0]
     w, h = area[1]
     return x[:, :, ymin: ymin + h, xmin: xmin + w]
-
+'''
+def crop(image, mask, size):
+    _, _, h, w = image.shape
+    top = random.randint(0, max(0, h - size))
+    left = random.randint(0, max(0, w - size))
+    cropped_image = image[:, :, top:top + size, left:left + size]
+    cropped_mask = mask[:, :, top:top + size, left:left + size]
+    return cropped_image, cropped_mask
 
 def sample_random_batch(dataset, batch_size=32):
     """
