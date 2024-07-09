@@ -25,6 +25,10 @@ def main(args):
     args.config = os.path.expanduser(args.config)
     args.input_img = os.path.expanduser(args.input_img)
     args.output_img = os.path.expanduser(args.output_img)
+    print(f'Model path: {args.model}')
+    print(f'Config path: {args.config}')
+    print(f'Input image path: {args.input_img}')
+    print(f'Output image path: {args.output_img}')    
     # =============================================
     # Load model
     # =============================================
