@@ -462,6 +462,7 @@ def main(args):
     # Predict
     # =============================================
     # convert img to tensor
+    print('Pippo')
     img = Image.open(args.input_img)
     img = transforms.Resize((args.img_size, args.img_size_1))(img)
     #img = transforms.CenterCrop((args.img_size, args.img_size_1))(img)
@@ -490,5 +491,6 @@ def main(args):
         save_image(x, os.path.join(args.output_img, 'input.png'))
         save_image(x_mask, os.path.join(args.output_img, 'x_mask.png'))
         save_image(inpainted, os.path.join(args.output_img, 'inpainted.png'))
+        print('Pippo')
     print('output img was saved as %s.' % args.output_img)
 
