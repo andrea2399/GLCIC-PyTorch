@@ -29,7 +29,10 @@ def main(args):
     args.config = os.path.expanduser(args.config)
     args.input_img = os.path.expanduser(args.input_img)
     args.output_img = os.path.expanduser(args.output_img)
-
+    print(f'Model path: {args.model}')
+    print(f'Config path: {args.config}')
+    print(f'Input image path: {args.input_img}')
+    print(f'Output image path: {args.output_img}')
     # =============================================
     # Load model
     # =============================================
@@ -66,8 +69,12 @@ def main(args):
         input = torch.cat((x_mask, mask), dim=1)
         output = model(input)
         inpainted = poisson_blend(x_mask, output, mask)
-        imgs = torch.cat((x, x_mask, inpainted), dim=0)
-        save_image(imgs, args.output_img, nrow=3)
+        #imgs = torch.cat((x, x_mask, inpainted), dim=0)
+        #save_image(imgs, args.output_img, nrow=3)
+        save_image(x, os.path.join(args.output_img, 'input.png'))
+        save_image(x_mask, os.path.join(args.output_img, 'x_mask.png'))
+        save_image(inpainted, os.path.join(args.output_img, 'inpainted.png'))
+        print('Pippo')
     print('output img was saved as %s.' % args.output_img)
 
 
