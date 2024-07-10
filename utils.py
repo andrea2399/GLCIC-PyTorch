@@ -140,7 +140,7 @@ def poisson_blend(input, output, mask):
     for i in range(num_samples):
         #dstimg = np.array(transforms.functional.to_pil_image(input[i].squeeze(0)))
         #srcimg = np.array(transforms.functional.to_pil_image(output[i].squeeze(0)))
-        msk = np.array(transforms.functional.to_pil_image(mask[i])         
+        msk = np.array(transforms.functional.to_pil_image(mask[i]))         
         #dstimg = transforms.functional.to_pil_image(input[i])
         #srcimg = transforms.functional.to_pil_image(output[i])
         #msk = transforms.functional.to_pil_image(mask[i])     
