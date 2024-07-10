@@ -209,7 +209,7 @@ def main(args):
                         model_cn_path = os.path.join(
                             args.result_dir,
                             'phase_1',
-                            'model_cn_latest' % pbar.n)
+                            'model_cn_latest')
                         #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
@@ -332,7 +332,7 @@ def main(args):
                         model_cd_path = os.path.join(
                             args.result_dir,
                             'phase_2',
-                            'model_cd_latest' % pbar.n)
+                            'model_cd_latest')
                         #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
@@ -459,11 +459,11 @@ def main(args):
                         model_cn_path = os.path.join(
                             args.result_dir,
                             'phase_3',
-                            'model_cn_latest' % pbar.n)
+                            'model_cn_latest')
                         model_cd_path = os.path.join(
                             args.result_dir,
                             'phase_3',
-                            'model_cd_latest' % pbar.n)
+                            'model_cd_latest')
                         #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
