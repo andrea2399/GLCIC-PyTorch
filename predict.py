@@ -97,7 +97,7 @@ def main(args):
         with torch.no_grad():
             x_mask = stacked_img - stacked_img * mask + mpv * mask
             x_mask[:, :2, :, :] = stacked_img[:, :2, :, :] 
-            x_mask[:, :1, :, :] = stacked_img [:, :1, :, :]  - stacked_img [:, :1, :, :] * mask [:, :1, :, :] + mpv * mask [:, :1, :, :]
+            x_mask[:, :1, :, :] = stacked_img [:, :1, :, :]  - stacked_img [:, :1, :, :] * mask + mpv * mask 
             input = torch.cat((x_mask, mask), dim=1)
             output = model(input)
             inpainted = poisson_blend(x_mask[:, :1, :, :], output, mask)
