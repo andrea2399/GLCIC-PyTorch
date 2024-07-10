@@ -142,7 +142,7 @@ def poisson_blend(input, output, mask):
         srcimg = transforms.functional.to_pil_image(output[i])
         msk = transforms.functional.to_pil_image(mask[i])
         # compute mask's center
-        xs, ys = np.where(msk == 255)                
+        #xs, ys = np.where(msk == 255)                
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
