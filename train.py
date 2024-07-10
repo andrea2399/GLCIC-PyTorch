@@ -67,9 +67,11 @@ def main(args):
 
     # load dataset
     trnsfm = transforms.Compose([
+        #transforms.Resize(args.cn_input_size),
+        #transforms.RandomCrop((args.cn_input_size, args.cn_input_size)),
         transforms.Resize(args.cn_input_size),
-        transforms.RandomCrop((args.cn_input_size, args.cn_input_size)),
-        transforms.ToTensor(),
+        transforms.CenterCrop((args.cn_input_size, args.cn_input_size)),
+        #transforms.ToTensor(),
     ])
     print('loading dataset... (it may take a few minutes)')
     train_dset = ImageDataset(
