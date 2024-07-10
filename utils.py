@@ -138,8 +138,8 @@ def poisson_blend(input, output, mask):
     num_samples = input.shape[0]
     ret = []
     for i in range(num_samples):
-        #dstimg = np.array(transforms.functional.to_pil_image(input[i].squeeze(0)))
-        #srcimg = np.array(transforms.functional.to_pil_image(output[i].squeeze(0)))
+        dstimg = np.array(transforms.functional.to_pil_image(input[i]))
+        srcimg = np.array(transforms.functional.to_pil_image(output[i]))
         msk = np.array(transforms.functional.to_pil_image(mask[i]))         
         #dstimg = transforms.functional.to_pil_image(input[i])
         #srcimg = transforms.functional.to_pil_image(output[i])
@@ -150,10 +150,10 @@ def poisson_blend(input, output, mask):
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        dstimg = transforms.functional.to_pil_image(input[i])
+        dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
+        #dstimg = transforms.functional.to_pil_image(input[i])
         srcimg = transforms.functional.to_pil_image(output[i])
         msk = transforms.functional.to_pil_image(mask[i])
-        dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
         out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
         out = transforms.functional.to_tensor(out)
         out = torch.unsqueeze(out, dim=0)
