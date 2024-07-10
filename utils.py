@@ -156,7 +156,7 @@ def poisson_blend(input, output, mask):
             print(f"msk is empty at index {i}")    
         #msk_1 = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))
         # compute mask's center
-        xs, ys = np.where(msk == 255)                
+        xs, ys = np.where(msk[:, :, 0]  == 255)                
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
@@ -165,7 +165,7 @@ def poisson_blend(input, output, mask):
         #srcimg = transforms.functional.to_pil_image(output[i])
         #msk = transforms.functional.to_pil_image(mask[i])
         out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
-        out = transforms.functional.to_tensor(out)
+        out = transforms.functional.to_tensor(out[:, :, 0] )
         out = torch.unsqueeze(out, dim=0)
         ret.append(out)
     ret = torch.cat(ret, dim=0)
