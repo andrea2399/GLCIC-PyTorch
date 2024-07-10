@@ -138,12 +138,15 @@ def poisson_blend(input, output, mask):
     num_samples = input.shape[0]
     ret = []
     for i in range(num_samples):
-        dstimg = transforms.functional.to_pil_image(input[i])
-        srcimg = transforms.functional.to_pil_image(output[i])
-        msk = transforms.functional.to_pil_image(mask[i])     
-        msk_1 = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))
+        dstimg = np.array(transforms.functional.to_pil_image(input[i])
+        srcimg = np.array(transforms.functional.to_pil_image(output[i])
+        msk = np.array(transforms.functional.to_pil_image(mask[i])         
+        #dstimg = transforms.functional.to_pil_image(input[i])
+        #srcimg = transforms.functional.to_pil_image(output[i])
+        #msk = transforms.functional.to_pil_image(mask[i])     
+        #msk_1 = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))
         # compute mask's center
-        xs, ys = np.where(msk_1 == 255)                
+        xs, ys = np.where(msk == 255)                
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
