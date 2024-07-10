@@ -196,10 +196,12 @@ def main(args):
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
+                        '''
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
+                         '''   
                         imgpath = os.path.join(
                             args.result_dir,
                             'phase_1',
@@ -208,7 +210,7 @@ def main(args):
                             args.result_dir,
                             'phase_1',
                             'model_cn_latest' % pbar.n)
-                        save_image(imgs, imgpath, nrow=len(x))
+                        #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
                                 model_cn.module.state_dict(),
@@ -317,10 +319,12 @@ def main(args):
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
+                        '''
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
+                        '''    
                         imgpath = os.path.join(
                             args.result_dir,
                             'phase_2',
@@ -329,7 +333,7 @@ def main(args):
                             args.result_dir,
                             'phase_2',
                             'model_cd_latest' % pbar.n)
-                        save_image(imgs, imgpath, nrow=len(x))
+                        #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
                                 model_cd.module.state_dict(),
@@ -442,10 +446,12 @@ def main(args):
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
+                        '''
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
                             completed.cpu()), dim=0)
+                        '''
                         imgpath = os.path.join(
                             args.result_dir,
                             'phase_3',
@@ -458,7 +464,7 @@ def main(args):
                             args.result_dir,
                             'phase_3',
                             'model_cd_latest' % pbar.n)
-                        save_image(imgs, imgpath, nrow=len(x))
+                        #save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
                                 model_cn.module.state_dict(),
