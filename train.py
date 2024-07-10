@@ -1,6 +1,7 @@
 import json
 import os
 import argparse
+import tifffile as tiff
 from torch.utils.data import DataLoader
 from torch.optim import Adadelta, Adam
 from torch.nn import BCELoss, DataParallel
