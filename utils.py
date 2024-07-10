@@ -157,7 +157,7 @@ def poisson_blend(input, output, mask):
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        dstimg = np.array(cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA).squeeze(0))
+        dstimg = np.array(cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA))
         #dstimg = transforms.functional.to_pil_image(input[i])
         #srcimg = transforms.functional.to_pil_image(output[i])
         #msk = transforms.functional.to_pil_image(mask[i])
