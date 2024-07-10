@@ -43,7 +43,7 @@ parser.add_argument('--cn_input_size', type=int, default=160)
 parser.add_argument('--ld_input_size', type=int, default=96)
 parser.add_argument('--bsize', type=int, default=1)
 parser.add_argument('--bdivs', type=int, default=1)
-parser.add_argument('--num_test_completions', type=int, default=16)
+parser.add_argument('--num_test_completions', type=int, default=1)
 parser.add_argument('--mpv', nargs=3, type=float, default=None)
 parser.add_argument('--alpha', type=float, default=4e-4)
 parser.add_argument('--arc', type=str, choices=['celeba', 'places2'], default='celeba')
@@ -204,7 +204,7 @@ def main(args):
                         model_cn_path = os.path.join(
                             args.result_dir,
                             'phase_1',
-                            'model_cn_step%d' % pbar.n)
+                            'model_cn_latest' % pbar.n)
                         save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
@@ -325,7 +325,7 @@ def main(args):
                         model_cd_path = os.path.join(
                             args.result_dir,
                             'phase_2',
-                            'model_cd_step%d' % pbar.n)
+                            'model_cd_latest' % pbar.n)
                         save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
@@ -450,11 +450,11 @@ def main(args):
                         model_cn_path = os.path.join(
                             args.result_dir,
                             'phase_3',
-                            'model_cn_step%d' % pbar.n)
+                            'model_cn_latest' % pbar.n)
                         model_cd_path = os.path.join(
                             args.result_dir,
                             'phase_3',
-                            'model_cd_step%d' % pbar.n)
+                            'model_cd_latest' % pbar.n)
                         save_image(imgs, imgpath, nrow=len(x))
                         if args.data_parallel:
                             torch.save(
