@@ -188,6 +188,8 @@ def main(args):
                                 (x.shape[3], x.shape[2])),
                             max_holes=args.max_holes).to(gpu)
                         x_mask = x - x * mask + mpv * mask
+                        x_mask[:, :2, :, :] = x[:, :2, :, :] 
+                        x_mask[:, :1, :, :] = x[:, :1, :, :]  - x[:, :1, :, :] * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
                         completed = poisson_blend(x_mask, output, mask)
