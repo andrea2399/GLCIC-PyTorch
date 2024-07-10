@@ -135,15 +135,24 @@ def poisson_blend(input, output, mask):
     input = input.clone().cpu()
     output = output.clone().cpu()
     mask = mask.clone().cpu()
+    input = torch.cat((input, input, input), dim=1)
+    output = torch.cat((output, output, output), dim=1)     
+    mask = torch.cat((mask, mask, mask), dim=1) 
     num_samples = input.shape[0]
     ret = []
     for i in range(num_samples):
-        dstimg = np.repeat(np.array(transforms.functional.to_pil_image(input[i]))[:, :, np.newaxis], 3, axis=2)
-        srcimg = np.repeat(np.array(transforms.functional.to_pil_image(output[i]))[:, :, np.newaxis], 3, axis=2)
-        msk = np.repeat(np.array(transforms.functional.to_pil_image(mask[i]))[:, :, np.newaxis], 3, axis=2)     
+        dstimg = transforms.functional.to_pil_image(input[i])
+        dstimg = np.array(dstimg)[:, :, [2, 1, 0]]
+        srcimg = transforms.functional.to_pil_image(output[i])
+        srcimg = np.array(srcimg)[:, :, [2, 1, 0]]
+        msk = transforms.functional.to_pil_image(mask[i])
+        msk = np.array(msk)[:, :, [2, 1, 0]]
+        #dstimg = np.repeat(np.array(transforms.functional.to_pil_image(input[i]))[:, :, np.newaxis], 3, axis=2)
+        #srcimg = np.repeat(np.array(transforms.functional.to_pil_image(output[i]))[:, :, np.newaxis], 3, axis=2)
+        #msk = np.repeat(np.array(transforms.functional.to_pil_image(mask[i]))[:, :, np.newaxis], 3, axis=2)     
         #dstimg = np.array(transforms.functional.to_pil_image(input[i].squeeze(0)))
         #srcimg = np.array(transforms.functional.to_pil_image(output[i].squeeze(0)))
-        #msk = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))         
+        #msk = transforms.functional.to_pil_image(mask[i].squeeze(0)))         
         #dstimg = transforms.functional.to_pil_image(input[i])
         #srcimg = transforms.functional.to_pil_image(output[i])
         #msk = transforms.functional.to_pil_image(mask[i])     
@@ -156,11 +165,17 @@ def poisson_blend(input, output, mask):
             print(f"msk is empty at index {i}")    
         #msk_1 = np.array(transforms.functional.to_pil_image(mask[i].squeeze(0)))
         # compute mask's center
-        xs, ys = np.where(msk[:, :, 0]  == 255)                
+        xs, ys = [], []
+        for j in range(msk.shape[0]):
+            for k in range(msk.shape[1]):
+                if msk[j, k, 0] == 255:
+                    ys.append(j)
+                    xs.append(k)
+        #xs, ys = np.where(msk[:, :, 0]  == 255)                
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        dstimg = np.array(cv2.inpaint(dstimg, msk[:, :, 0], 1, cv2.INPAINT_TELEA))
+        dstimg = cv2.inpaint(dstimg, msk[:, :, 0], 1, cv2.INPAINT_TELEA)
         #dstimg = transforms.functional.to_pil_image(input[i])
         #srcimg = transforms.functional.to_pil_image(output[i])
         #msk = transforms.functional.to_pil_image(mask[i])
