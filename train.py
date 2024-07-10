@@ -195,7 +195,7 @@ def main(args):
                         x_mask[:, :1, :, :] = x[:, :1, :, :]  - x[:, :1, :, :] * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
-                        completed = poisson_blend(x_mask, output, mask)
+                        completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
@@ -316,7 +316,7 @@ def main(args):
                         x_mask[:, :1, :, :] = x[:, :1, :, :]  - x[:, :1, :, :] * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
-                        completed = poisson_blend(x_mask, output, mask)
+                        completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
@@ -441,7 +441,7 @@ def main(args):
                         x_mask[:, :1, :, :] = x[:, :1, :, :]  - x[:, :1, :, :] * mask + mpv * mask
                         input = torch.cat((x_mask, mask), dim=1)
                         output = model_cn(input)
-                        completed = poisson_blend(x_mask, output, mask)
+                        completed = poisson_blend(x_mask[:, :1, :, :], output, mask)
                         imgs = torch.cat((
                             x.cpu(),
                             x_mask.cpu(),
