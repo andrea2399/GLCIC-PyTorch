@@ -141,14 +141,12 @@ def poisson_blend(input, output, mask):
         dstimg = transforms.functional.to_pil_image(input[i])
         srcimg = transforms.functional.to_pil_image(output[i])
         msk = transforms.functional.to_pil_image(mask[i])
-        # Inpainting on the first channel
-        dstimg_channel = dstimg[:, :, 0]
         # compute mask's center
         xs, ys = np.where(msk == 255)                
         xmin, xmax = min(xs), max(xs)
         ymin, ymax = min(ys), max(ys)
         center = ((xmax + xmin) // 2, (ymax + ymin) // 2)
-        dstimg = cv2.inpaint(dstimg_channel, msk, 1, cv2.INPAINT_TELEA)
+        dstimg = cv2.inpaint(dstimg, msk, 1, cv2.INPAINT_TELEA)
         out = cv2.seamlessClone(srcimg, dstimg, msk, center, cv2.NORMAL_CLONE)
         out = transforms.functional.to_tensor(out)
         out = torch.unsqueeze(out, dim=0)
