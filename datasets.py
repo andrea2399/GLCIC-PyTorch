@@ -40,8 +40,8 @@ class ImageDataset(data.Dataset):
             stacked_img = torch.from_numpy(stacked_img)
             stacked_img = stacked_img.permute(2, 0, 1)             
 
-        cbct_img = stacked_img
-        return cbct_img
+        x = stacked_img
+        return x
         
     def __is_imgfile(self, filepath):
         filepath = os.path.expanduser(filepath)
