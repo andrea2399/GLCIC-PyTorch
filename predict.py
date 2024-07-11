@@ -19,6 +19,10 @@ parser.add_argument('output_folder')
 parser.add_argument('--max_holes', type=int, default=5)
 parser.add_argument('--img_size', type=int, default=160)
 parser.add_argument('--img_size_1', type=int, default=160)
+parser.add_argument('--hole_min_w', type=int, default=24)
+parser.add_argument('--hole_max_w', type=int, default=48)
+parser.add_argument('--hole_min_h', type=int, default=24)
+parser.add_argument('--hole_max_h', type=int, default=48)
 parser.add_argument('--hole_size', type=int, default=50)
 
 def main(args):
@@ -64,9 +68,11 @@ def main(args):
     # Create a mask
     mask = gen_input_mask(
         shape=(1, 1, args.img_size, args.img_size_1),
-        hole_size=(                                                                                                                        
-            (args.hole_size, args.hole_size),
+        hole_size=(          
+            (args.hole_min_w, args.hole_max_w),
             (args.hole_min_h, args.hole_max_h),
+            #(args.hole_size, args.hole_size),
+            #(args.hole_min_h, args.hole_max_h),
         ),
         max_holes=args.max_holes,
     )
